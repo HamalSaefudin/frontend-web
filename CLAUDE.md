@@ -6,4 +6,4 @@ See individual rule files:
 - [Components](docs/rules/components.md) — UI components, modals, loading
 - [Patterns](docs/rules/patterns.md) — Forms, services, data fetching
 
-When in doubt, mirror `src/modules/master-user/` or `src/modules/receiving-unit/`.
+When in doubt, mirror `src/modules/master-user/` or `src/modules/leads/`.
