@@ -1,0 +1,33 @@
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+  padding: 1.5rem;
+}
+
+.login-container .card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-content {
+  padding: 0.5rem 0.25rem;
+}
+
+.login-title {
+  margin-top: 0;
+  margin-bottom: 1.75rem;
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.login-hint {
+  margin-top: 1.25rem;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}

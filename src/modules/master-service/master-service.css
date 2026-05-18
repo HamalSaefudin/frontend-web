@@ -1,0 +1,19 @@
+.master-service-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.master-service-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.master-service-container th,
+.master-service-container td {
+  text-align: left;
+}
+
+.master-service-container tbody tr:hover {
+  background-color: var(--muted);
+}

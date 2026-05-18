@@ -1,0 +1,14 @@
+schema: spec-driven
+
+context: |
+  Tech stack: React, TypeScript, TailwindCSS, React Query, React Router, Vite
+  Architecture: Modular feature-based with consolidated hooks (1-2 files per feature)
+  Database: Mock data layer, will integrate with backend APIs
+  Testing: Jest, React Testing Library
+
+rules:
+  tasks:
+    - Skip Task 14 (Documentation & Deployment) - teams handle these separately after feature completion
+    - Organize tasks into logical sections with clear descriptions
+    - Include both happy path and edge cases
+    - Mark backend integration tasks for later (when APIs are ready)

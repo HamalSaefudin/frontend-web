@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FJB NOS - Prototype</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 6px;
+    }
+
+    .row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .col {
+      flex: 1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .tab {
+      padding: 8px 12px;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .tab.active {
+      border: 1px solid #ccc;
+      border-bottom: none;
+      background: #fff;
+    }
+
+    .tab-content {
+      display: none;
+      padding-top: 10px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      font-size: 12px;
+    }
+
+    .section {
+      margin-top: 20px;
+    }
+
+    .actions {
+      margin-top: 20px;
+      text-align: right;
+    }
+
+    button {
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Detail Faktur Jual Bengkel - NOS</h2>
+
+<!-- HEADER -->
+<div class="row">
+  <div class="col">
+    <label>Cabang *</label>
+    <select>
+      <option>NAGA MAS KLATEN TENGAH</option>
+    </select>
+  </div>
+  <div class="col">
+    <label>No Booking</label>
+    <input type="text" />
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <label>No Faktur</label>
+    <input type="text" readonly />
+  </div>
+  <div class="col">
+    <label>No Prospect</label>
+    <input type="text" />
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <label>Tanggal</label>
+    <input type="date" />
+  </div>
+  <div class="col">
+    <label>Tipe FJB *</label>
+    <select></select>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('unit')">Data Unit</div>
+  <div class="tab" onclick="showTab('pemilik')">Data Pemilik</div>
+  <div class="tab" onclick="showTab('pembawa')">Data Pembawa</div>
+  <div class="tab" onclick="showTab('analisa')">Analisa</div>
+  <div class="tab" onclick="showTab('transaksi')">Data Transaksi</div>
+  <div class="tab" onclick="showTab('tambahan')">Data Tambahan</div>
+</div>
+
+<!-- DATA UNIT -->
+<div id="unit" class="tab-content active">
+  <div class="row">
+    <div class="col">
+      <label>Nomor Polisi *</label>
+      <input />
+    </div>
+    <div class="col">
+      <label>Nama Varian *</label>
+      <input />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <label>Nomor Rangka *</label>
+      <input />
+    </div>
+    <div class="col">
+      <label>Tahun Motor</label>
+      <input />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <label>Nomor Mesin *</label>
+      <div style="display:flex; gap:8px;">
+        <input />
+        <button>CEK</button>
+      </div>
+    </div>
+    <div class="col">
+      <label>Informasi Bensin</label>
+      <input />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <label>Kode Varian *</label>
+      <select></select>
+    </div>
+    <div class="col">
+      <label>KM Terakhir *</label>
+      <input type="number" />
+    </div>
+  </div>
+</div>
+
+<!-- DATA PEMILIK -->
+<div id="pemilik" class="tab-content">
+  <label><input type="checkbox" /> Perusahaan / PT</label>
+
+  <div class="row">
+    <div class="col">
+      <label>Nama *</label>
+      <input />
+    </div>
+    <div class="col">
+      <label>Jenis Kelamin *</label>
+      <select></select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <label>NIK *</label>
+      <input />
+    </div>
+    <div class="col">
+      <label>Pekerjaan *</label>
+      <select></select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <label>No HP *</label>
+      <input />
+    </div>
+    <div class="col">
+      <label>Agama *</label>
+      <select></select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <label>Email *</label>
+      <input type="email" />
+    </div>
+  </div>
+</div>
+
+<!-- DATA PEMBAWA -->
+<div id="pembawa" class="tab-content">
+  <p>Same structure as Pemilik</p>
+</div>
+
+<!-- ANALISA -->
+<div id="analisa" class="tab-content">
+  <div class="row">
+    <div class="col">
+      <label>Rekomendasi SA *</label>
+      <textarea rows="4"></textarea>
+    </div>
+    <div class="col">
+      <label>Keluhan Konsumen *</label>
+      <textarea rows="4"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSAKSI -->
+<div id="transaksi" class="tab-content">
+
+  <div class="section">
+    <h4>Jasa Bengkel</h4>
+    <button>+ Tambah</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Kode</th>
+          <th>Nama</th>
+          <th>Harga</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="4">No data</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h4>Part</h4>
+    <button>+ Tambah</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Kode</th>
+          <th>Nama</th>
+          <th>Qty</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="4">No data</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section" style="text-align:right;">
+    <p>Total: Rp 0</p>
+  </div>
+
+</div>
+
+<!-- TAMBAHAN -->
+<div id="tambahan" class="tab-content">
+
+  <div class="row">
+    <div class="col">
+      <label>No Work Order *</label>
+      <input />
+    </div>
+    <div class="col">
+      <label>Jenis Pit *</label>
+      <select></select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <label>Tanggal Service *</label>
+      <input type="date" />
+    </div>
+    <div class="col">
+      <label>Waktu Pendaftaran</label>
+      <input type="datetime-local" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <label>Nama Mekanik *</label>
+      <select></select>
+    </div>
+    <div class="col">
+      <label>SA *</label>
+      <select></select>
+    </div>
+  </div>
+
+</div>
+
+<!-- ACTION -->
+<div class="actions">
+  <button>Clear</button>
+  <button>Confirm Order</button>
+</div>
+
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+  event.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+</script>
+
+</body>
+</html>

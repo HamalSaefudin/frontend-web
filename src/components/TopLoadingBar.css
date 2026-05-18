@@ -1,0 +1,28 @@
+.top-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  height: 3px;
+  background-color: var(--color-brand, #6366f1);
+  box-shadow: 0 0 8px 1px rgba(99, 102, 241, 0.5);
+}
+
+.top-loading-bar--loading {
+  animation: bar-loading 8s ease-out forwards;
+}
+
+.top-loading-bar--completing {
+  animation: bar-complete 0.4s ease-out forwards;
+}
+
+@keyframes bar-loading {
+  from { width: 0%; }
+  to   { width: 82%; }
+}
+
+@keyframes bar-complete {
+  0%   { width: 100%; opacity: 1; }
+  50%  { width: 100%; opacity: 1; }
+  100% { width: 100%; opacity: 0; }
+}

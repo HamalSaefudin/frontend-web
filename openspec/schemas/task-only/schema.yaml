@@ -1,0 +1,69 @@
+name: task-only
+version: 1
+description: Quick task-only workflow - creates tasks directly
+artifacts:
+  - id: tasks
+    generates: tasks.md
+    description: Implementation checklist with trackable tasks
+    template: tasks.md
+    instruction: >
+      Create the task list that breaks down the implementation work.
+
+
+      **IMPORTANT: Follow the template below exactly.** The apply phase parses
+
+
+      checkbox format to track progress. Tasks not using `- [ ]` won't be
+
+
+      tracked.
+
+
+      Guidelines:
+
+
+      - Group related tasks under ## numbered headings
+
+
+      - Each task MUST be a checkbox: `- [ ] X.Y Task description`
+
+
+      - Tasks should be small enough to complete in one session
+
+
+      - Order tasks by dependency (what must be done first?)
+
+
+      Example:
+
+      ```
+
+      ## 1. Setup
+
+
+      - [ ] 1.1 Create new module structure
+
+
+      - [ ] 1.2 Add dependencies to package.json
+
+
+      ## 2. Core Implementation
+
+
+      - [ ] 2.1 Implement feature X
+
+
+      - [ ] 2.2 Add tests
+
+      ```
+
+
+      Each task should be verifiable - you know when it's done.
+    requires: []
+apply:
+  requires:
+    - tasks
+  tracks: tasks.md
+  instruction: |
+    Read context files, work through pending tasks, mark complete as you go.
+    Pause if you hit blockers or need clarification.

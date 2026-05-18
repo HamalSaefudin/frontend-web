@@ -1,0 +1,1 @@
+export { useLeadsQuery } from './useLeadsQuery'

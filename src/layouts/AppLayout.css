@@ -1,0 +1,19 @@
+:root {
+  /* Now refers to the top bar inside SidebarInset (the sidebar-toggle bar) */
+  --app-nav-height: 48px;
+}
+
+.app-footer {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.app-footer p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}

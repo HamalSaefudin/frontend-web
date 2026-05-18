@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(pkill -f \"npm run dev\")",
+      "Bash(npx shadcn@latest init -y)",
+      "Bash(npm uninstall *)",
+      "Bash(kill %1)",
+      "Bash(wait)",
+      "Bash(node -e \"require\\('./node_modules/react-day-picker/package.json'\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/react-day-picker/package.json'\\).version\\)\")",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(p.engines\\)\")",
+      "Bash(npx tsc *)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(openspec new *)",
+      "Bash(openspec status *)",
+      "Bash(openspec instructions *)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(openspec list *)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(killall vitest *)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "Read(//tmp/**)",
+      "Bash(pkill -f \"vite\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(jq '.instruction' -r)",
+      "Bash(jq '.template' -r)",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "Bash(openspec --help)",
+      "Bash(openspec change *)",
+      "Bash(openspec validate *)",
+      "Bash(mv add-master-samsat *)",
+      "Bash(mv add-master-user *)",
+      "Bash(mv add-master-cabang *)",
+      "Bash(npx vitest *)",
+      "Bash(ps -p 34513 -o command=)",
+      "Bash(npx eslint *)",
+      "Bash(npm ls *)"
+    ]
+  }
+}

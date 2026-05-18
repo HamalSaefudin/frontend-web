@@ -1,0 +1,19 @@
+.master-cabang-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.master-cabang-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.master-cabang-container th,
+.master-cabang-container td {
+  text-align: left;
+}
+
+.master-cabang-container tbody tr:hover {
+  background-color: var(--muted);
+}

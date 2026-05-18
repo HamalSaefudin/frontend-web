@@ -1,0 +1,29 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.status-badge--new {
+  background-color: #ede9fe;
+  color: var(--color-status-new);
+}
+
+.status-badge--contacted {
+  background-color: #fef3c7;
+  color: var(--color-status-contacted);
+}
+
+.status-badge--qualified {
+  background-color: #d1fae5;
+  color: var(--color-status-qualified);
+}
+
+.status-badge--converted {
+  background-color: #ede9fe;
+  color: var(--color-status-converted);
+}
