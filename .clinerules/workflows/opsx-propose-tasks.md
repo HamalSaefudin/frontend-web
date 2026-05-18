@@ -1,5 +1,7 @@
 # OPSX: Propose Tasks
 
+I'll read CLAUDE.MD as context first
+
 Propose a new change - create tasks directly without spec/design/proposal
 
 Propose a new change - create tasks directly without spec/design/proposal.

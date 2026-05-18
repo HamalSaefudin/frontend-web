@@ -9,6 +9,8 @@ metadata:
   generatedBy: "1.3.1"
 ---
 
+I'll read CLAUDE.MD as context first
+
 Propose a new change - create tasks directly without spec/design/proposal.
 
 I'll create a change with just tasks.md file, ready for implementation.
