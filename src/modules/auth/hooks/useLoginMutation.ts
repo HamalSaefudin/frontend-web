@@ -15,8 +15,8 @@ export function useLoginMutation() {
         menuName: "login",
       }),
     onSuccess: (data) => {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.data.accessToken);
+      localStorage.setItem("refreshToken", data.data.refreshToken);
     },
   });
 }

@@ -7,6 +7,7 @@ import {
 import { ModalProvider } from "@/components/ModalProvider";
 import ProtectedLayout from "@/layouts/ProtectedLayout";
 import { LoginScreen } from "./modules/auth/LoginScreen";
+import { RegisterScreen } from "./modules/auth/RegisterScreen";
 import { DashboardScreen } from "./modules/dashboard/DashboardScreen";
 import { LeadsScreen } from "./modules/leads/LeadsScreen";
 import { MasterServiceScreen } from "./modules/master-service/MasterServiceScreen";
@@ -29,6 +30,16 @@ function App() {
               <Navigate to="/dashboard" replace />
             ) : (
               <LoginScreen />
+            )
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            isAuthenticated() ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <RegisterScreen />
             )
           }
         />

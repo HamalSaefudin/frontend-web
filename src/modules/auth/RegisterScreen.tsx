@@ -3,27 +3,41 @@ import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/ui/input-field";
 import { useState, type FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useLoginMutation } from "./hooks";
-import "./login.css";
+import { useRegisterMutation } from "./hooks";
+import "./register.css";
 
-export function LoginScreen() {
+export function RegisterScreen() {
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const loginMutation = useLoginMutation();
+  const registerMutation = useRegisterMutation();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await loginMutation.mutateAsync({ email, password });
-    navigate("/dashboard");
+    try {
+      await registerMutation.mutateAsync({ name, email, password });
+      navigate("/login");
+    } catch {
+      // Error is handled by the mutation
+    }
   };
 
   return (
-    <div className="login-container">
+    <div className="register-container">
       <Card variant="elevated">
-        <div className="login-content">
-          <h1 className="login-title">Login</h1>
+        <div className="register-content">
+          <h1 className="register-title">Create Account</h1>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <InputField
+              id="name"
+              type="text"
+              label="Full Name"
+              placeholder="Enter your full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
             <InputField
               id="email"
               type="email"
@@ -44,16 +58,16 @@ export function LoginScreen() {
             />
             <Button
               type="submit"
-              loading={loginMutation.isPending}
+              loading={registerMutation.isPending}
               className="w-full"
             >
-              Sign In
+              Create Account
             </Button>
           </form>
-          <p className="login-register-link">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-link">
-              Create Account
+          <p className="register-login-link">
+            Already have an account?{" "}
+            <Link to="/login" className="text-link">
+              Sign In
             </Link>
           </p>
         </div>

@@ -15,6 +15,26 @@ export interface LoginRequest {
   password: string
 }
 
+export interface RegisterRequest {
+  name: string
+  email: string
+  password: string
+}
+
+export interface TokenData {
+  accessToken: string
+  refreshToken: string
+  expiresIn: number
+  tokenType: string
+}
+
+export interface AuthApiResponse {
+  success: boolean
+  code: string
+  message: string
+  data: TokenData
+}
+
 export interface Lead {
   id: string
   name: string
