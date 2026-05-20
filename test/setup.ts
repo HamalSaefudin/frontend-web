@@ -1,11 +1,12 @@
 import '@testing-library/jest-dom/vitest'
-import { cleanup } from '@testing-library/react'
-import { afterEach, beforeEach, vi } from 'vitest'
+import { vi } from 'vitest'
 
 ;(globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
+// Mock fetch
 global.fetch = vi.fn()
 
+// Mock localStorage
 class InMemoryStorage implements Storage {
   private store = new Map<string, string>()
   get length() { return this.store.size }
@@ -22,19 +23,27 @@ Object.defineProperty(globalThis, 'localStorage', {
   configurable: true,
 })
 
-if (typeof window !== 'undefined' && !window.matchMedia) {
-  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  }))
+// Mock matchMedia for Radix UI components
+if (typeof window !== 'undefined') {
+  if (!window.matchMedia) {
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      configurable: true,
+      value: () => ({
+        matches: false,
+        media: '',
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => true,
+      }),
+    })
+  }
 }
 
+// Mock ResizeObserver
 if (typeof window !== 'undefined' && !window.ResizeObserver) {
   window.ResizeObserver = class {
     observe() {}
@@ -43,11 +52,11 @@ if (typeof window !== 'undefined' && !window.ResizeObserver) {
   } as unknown as typeof ResizeObserver
 }
 
+// Mock Element.prototype methods for Radix UI
 if (typeof Element !== 'undefined') {
   if (!Element.prototype.scrollIntoView) {
     Element.prototype.scrollIntoView = function () {}
   }
-  // Radix UI calls these on pointerdown
   if (!('hasPointerCapture' in Element.prototype)) {
     ;(Element.prototype as unknown as { hasPointerCapture: () => boolean }).hasPointerCapture = () => false
   }
@@ -58,12 +67,3 @@ if (typeof Element !== 'undefined') {
     ;(Element.prototype as unknown as { releasePointerCapture: () => void }).releasePointerCapture = () => {}
   }
 }
-
-beforeEach(() => {
-  vi.clearAllMocks()
-  localStorageInstance.clear()
-})
-
-afterEach(() => {
-  cleanup()
-})

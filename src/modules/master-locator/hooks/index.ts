@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  getLokasiList,
   getLokasiDetail,
   createLokasi,
   updateLokasi,
   deleteLokasi,
   updateLokasiStatus,
+  filterLokasi,
   type LokasiWarehouse,
   type LokasiFilterParams,
 } from '@/services/master-locator';
@@ -13,11 +13,23 @@ import type { LokasiFilterInput } from '../utils/validationSchemas';
 
 export type { LokasiWarehouse, LokasiFilterParams, LokasiFilterInput };
 
+// Default pagination values
+const DEFAULT_PAGE = 1;
+const DEFAULT_SIZE = 5;
+
 // Query hooks
 export const useLokasiList = (params?: LokasiFilterParams) => {
+  // Always use filterLokasi with default pagination (page=1, size=5)
+  // Merge provided params with defaults
+  const queryParams: LokasiFilterParams = {
+    page: DEFAULT_PAGE,
+    size: DEFAULT_SIZE,
+    ...params,
+  };
+  
   return useQuery({
-    queryKey: ['lokasi', params],
-    queryFn: () => getLokasiList(params),
+    queryKey: ['lokasi', 'filter', queryParams],
+    queryFn: () => filterLokasi(queryParams),
   });
 };
 

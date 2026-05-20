@@ -185,6 +185,68 @@ GET /api/v1/master-locator
 GET /api/v1/master-locator/filter
 ```
 
+## Query Parameters
+
+| Parameter     | Type   | Required | Description                                      | Default |
+|---------------|--------|----------|------------------------------------------------|---------|
+| kodeLokasi    | String | No       | Filter by kode lokasi (wildcard/partial match) | -       |
+| kodeCabang    | String | No       | Filter by kode cabang (wildcard/partial match) | -       |
+| namaLokasi    | String | No       | Filter by nama lokasi (wildcard/partial match) | -       |
+| page          | int    | No       | Page number (1-based)                          | 1       |
+| size          | int    | No       | Page size                                       | 10      |
+
+## Wildcard & Pagination Behavior
+
+- **Wildcard**: All filter parameters use partial matching (contains/LIKE pattern)
+- **Single Parameter**: Sending only 1 filter parameter returns all records matching that criteria
+- **Multiple Parameters**: When sending multiple parameters, all conditions are applied (AND logic)
+- **No Filter Parameters**: When all filter parameters are empty/null, returns all records (with pagination)
+- **Pagination**: Results are sorted by `createdAt` descending
+
+## Example Requests
+
+### Single filter parameter (wildcard)
+
+```txt
+GET /api/v1/master-locator/filter?kodeLokasi=WH-JKT
+```
+Returns all locators where kodeLokasi contains "WH-JKT"
+
+### Single filter parameter with pagination
+
+```txt
+GET /api/v1/master-locator/filter?kodeLokasi=WH&page=1&size=20
+```
+Returns first 20 results where kodeLokasi contains "WH"
+
+### Multiple filter parameters (AND logic)
+
+```txt
+GET /api/v1/master-locator/filter?kodeCabang=JKT01&namaLokasi=Jakarta
+```
+Returns locators where kodeCabang contains "JKT01" AND namaLokasi contains "Jakarta"
+
+### Multiple filter parameters with pagination
+
+```txt
+GET /api/v1/master-locator/filter?kodeLokasi=WH&kodeCabang=JKT&namaLokasi=Warehouse&page=1&size=5
+```
+Returns page 2 (5 items per page) matching all three filter conditions
+
+### No filter parameters (return all with pagination)
+
+```txt
+GET /api/v1/master-locator/filter?page=1&size=10
+```
+Returns first 10 locators (all records)
+
+### Empty filter (return all)
+
+```txt
+GET /api/v1/master-locator/filter
+```
+Returns all locators with default pagination (page=1, size=10)
+
 ## Success Response — 200
 
 ```json
@@ -206,7 +268,7 @@ GET /api/v1/master-locator/filter
 ## Endpoint
 
 ```txt
-PATCH /api/v1/master-locator/{lokasiId}/status
+PUT /api/v1/master-locator/{lokasiId}/status
 ```
 
 ## Request Body

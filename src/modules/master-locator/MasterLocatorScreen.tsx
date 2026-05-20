@@ -39,8 +39,9 @@ function getCabangName(kodeCabang: string): string {
 }
 
 export function MasterLocatorScreen() {
+  // Pagination: page is 0-based for DataTable, API uses 1-based (page+1)
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filterCriteria, setFilterCriteria] = useState<LokasiFilterInput>({});
   const [inlineSearch, setInlineSearch] = useState('');
@@ -49,7 +50,14 @@ export function MasterLocatorScreen() {
   const [deleteTarget, setDeleteTarget] = useState<LokasiWarehouse | null>(null);
   const [lokasiList, setLokasiList] = useState<LokasiWarehouse[]>([]);
 
-  const { data: fetchedData, isLoading, isFetching } = useLokasiList(filterCriteria);
+  // Build query params with pagination (API uses 1-based page)
+  const queryParams = {
+    ...filterCriteria,
+    page: page + 1,  // Convert 0-based to 1-based
+    size: rowsPerPage,
+  };
+
+  const { data: fetchedData, isLoading, isFetching } = useLokasiList(queryParams);
   const createMutation = useMutationCreateLokasi();
   const updateMutation = useMutationUpdateLokasi();
   const deleteMutation = useMutationDeleteLokasi();
@@ -126,6 +134,7 @@ export function MasterLocatorScreen() {
     const newStatus = lokasi.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
     try {
       await statusMutation.mutateAsync({ id: lokasi.id, status: newStatus });
+      resetToDefault(); // Reset filter and pagination after status change
     } catch (error) {
       console.error('Failed to update status:', error);
     }
@@ -141,6 +150,7 @@ export function MasterLocatorScreen() {
       await createMutation.mutateAsync(formData);
     }
     setFormOpen(false);
+    resetToDefault(); // Reset filter and pagination after create/update
   };
 
   const handleConfirmDelete = async () => {
@@ -148,6 +158,7 @@ export function MasterLocatorScreen() {
     const result = await deleteMutation.mutateAsync(deleteTarget.id);
     if (result.success) {
       setLokasiList((prev) => prev.filter((l) => l.id !== deleteTarget.id));
+      resetToDefault(); // Reset filter and pagination after delete
     }
     setDeleteTarget(null);
   };
@@ -155,8 +166,8 @@ export function MasterLocatorScreen() {
   // Inline search handler - clears filter popup when used
   const handleInlineSearch = () => {
     if (inlineSearch.trim()) {
-      // Clear filter popup criteria and use inline search
-      setFilterCriteria({ kodeLokasi: `%${inlineSearch.trim()}%` });
+      // Clear filter popup criteria and use inline search - API handles partial matching
+      setFilterCriteria({ kodeLokasi: inlineSearch.trim() });
     } else {
       setFilterCriteria({});
     }
@@ -171,6 +182,28 @@ export function MasterLocatorScreen() {
 
   const handleFilterClear = () => {
     setFilterCriteria({});
+  };
+
+  // Pagination handlers
+  const handlePageChange = (newPage: number) => {
+    // Page change: keep filters and rowsPerPage
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (newSize: number) => {
+    // Rows per page change: reset to page 0 and clear all filters
+    setPage(0);
+    setRowsPerPage(newSize);
+    setFilterCriteria({});
+    setInlineSearch('');
+  };
+
+  // Reset to default pagination and clear filters
+  const resetToDefault = () => {
+    setPage(0);
+    setRowsPerPage(5);
+    setFilterCriteria({});
+    setInlineSearch('');
   };
 
   const isLoadingOverall = isLoading || isFetching;
@@ -236,8 +269,8 @@ export function MasterLocatorScreen() {
           page={page}
           rowsPerPage={rowsPerPage}
           totalRows={totalRows}
-          onPageChange={setPage}
-          onRowsPerPageChange={setRowsPerPage}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
           isLoading={false}
         />
       )}

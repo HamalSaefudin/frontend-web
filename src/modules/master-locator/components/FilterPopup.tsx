@@ -2,9 +2,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AppModal } from '@/components/AppModal';
 import { InputField } from '@/components/ui/input-field';
+import { SelectField } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { lokasiFilterSchema, type LokasiFilterInput } from '../utils/validationSchemas';
 import { SearchIcon } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchBranches, type Branch } from '@/services/master-cabang';
 
 interface FilterPopupProps {
   open: boolean;
@@ -19,7 +22,13 @@ export function FilterPopup({
   onApply,
   onClear,
 }: FilterPopupProps) {
-  const { register, handleSubmit, reset } = useForm<LokasiFilterInput>({
+  const { data: branches = [] } = useQuery({
+    queryKey: ['branches', 'filter'],
+    queryFn: fetchBranches,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const { register, handleSubmit, reset, setValue, watch } = useForm<LokasiFilterInput>({
     resolver: zodResolver(lokasiFilterSchema),
     defaultValues: {
       kodeLokasi: '',
@@ -28,12 +37,14 @@ export function FilterPopup({
     },
   });
 
+  const selectedCabang = watch('kodeCabang');
+
   const onSubmit = (data: LokasiFilterInput) => {
-    // Only pass non-empty values
+    // Pass values directly - user can type wildcards manually if needed
     const filters: LokasiFilterInput = {};
-    if (data.kodeLokasi?.trim()) filters.kodeLokasi = `%${data.kodeLokasi.trim()}%`;
-    if (data.kodeCabang?.trim()) filters.kodeCabang = `%${data.kodeCabang.trim()}%`;
-    if (data.namaLokasi?.trim()) filters.namaLokasi = `%${data.namaLokasi.trim()}%`;
+    if (data.kodeLokasi?.trim()) filters.kodeLokasi = data.kodeLokasi.trim();
+    if (data.kodeCabang?.trim()) filters.kodeCabang = data.kodeCabang.trim();
+    if (data.namaLokasi?.trim()) filters.namaLokasi = data.namaLokasi.trim();
     
     onApply(filters);
     onOpenChange(false);
@@ -49,6 +60,14 @@ export function FilterPopup({
     onOpenChange(false);
   };
 
+  const cabangOptions: Array<{ value: string; label: string }> = [
+    { value: '', label: 'Semua Cabrera' },
+    ...branches.map((branch: Branch) => ({
+      value: branch.kodeCabang,
+      label: `${branch.kodeCabang} - ${branch.namaCabang}`,
+    })),
+  ];
+
   return (
     <AppModal
       isOpen={open}
@@ -59,13 +78,15 @@ export function FilterPopup({
         <InputField
           {...register('kodeLokasi')}
           label="Kode Lokasi"
-          placeholder="Cari kode lokasi..."
+          placeholder="Contoh: WH% atau WH-JKT"
         />
 
-        <InputField
-          {...register('kodeCabang')}
+        <SelectField
           label="Kode Cabrera"
-          placeholder="Cari kode cabang..."
+          value={selectedCabang || ''}
+          onChange={(val: string) => setValue('kodeCabang', val)}
+          options={cabangOptions}
+          placeholder="Semua Cabrera"
         />
 
         <InputField
