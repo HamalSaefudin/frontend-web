@@ -6,57 +6,93 @@ Propose a new change - create tasks directly without spec/design/proposal
 
 Propose a new change - create tasks directly without spec/design/proposal.
 
-I'll create a change with just tasks.md file, ready for implementation.
+IMPORTANT:
+- This command is ONLY for planning and task creation.
+- DO NOT implement code changes.
+- DO NOT modify application source files.
+- DO NOT refactor existing code.
+- ONLY create/update planning artifacts inside `openspec/changes/<name>/`.
+- Implementation MUST happen only when the user runs `/opsx:apply`.
 
-When ready to implement, run `/opsx:apply`
+I'll create a change with just tasks.md file, ready for implementation planning.
+
+When ready to implement, run /opsx:apply
 
 ---
 
 **Input**: The argument after `/opsx:propose-tasks` is the change name (kebab-case), OR a description of what you want to build.
 
-**Steps**
+## Steps
 
-1. **If no input provided, ask what they want to build**
+1. **If no clear input provided, ask what they want to build**
 
    Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
    > "What change do you want to work on? Describe what you want to build or fix."
 
    From their description, derive a kebab-case name (e.g., "add user login" → `add-user-login`).
 
-   **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
+   IMPORTANT:
+   - Do NOT proceed without understanding the requested change.
+   - Do NOT start implementation during clarification.
 
-2. **Create the change directory with task-only schema**
+2. **Check for existing change**
+
+   If `openspec/changes/<name>` already exists:
+   - Ask whether to continue the existing change or create a new one.
+   - Do NOT overwrite existing tasks automatically.
+
+3. **Create the change directory with task-only schema**
+
    ```bash
    openspec new change "<name>" --schema task-only
    ```
+
    This creates a change at `openspec/changes/<name>/` with task-only schema.
 
-3. **Get tasks artifact instructions**
+4. **Get tasks artifact instructions**
+
    ```bash
    openspec instructions tasks --change "<name>" --json
    ```
+
    Parse the JSON to get:
-   - `instruction`: How to create the tasks
-   - `template`: The structure to use
+   - `instruction`
+   - `template`
 
-4. **Create tasks.md directly**
+5. **Create tasks.md directly**
 
-   Use the **Write** tool to create `openspec/changes/<name>/tasks.md` following the template.
+   Use the **Write** tool to create:
 
-   Since there are no dependencies, tasks is ready immediately.
+   `openspec/changes/<name>/tasks.md`
 
-5. **Show final status**
+   Follow the provided template.
+
+   IMPORTANT:
+   - Tasks should be implementation-oriented but NOT implemented.
+   - Break work into clear actionable steps.
+   - Reference files/components that MAY need changes, but do NOT edit them.
+   - Do NOT generate code unless explicitly requested.
+   - Do NOT run implementation commands.
+
+6. **Show final status**
+
    ```bash
    openspec status --change "<name>"
    ```
 
-**Output**
+## Output
 
 After completing the task, summarize:
-- Change name and location
+- Change name
+- Change location
 - "Tasks created! Ready for implementation."
-- Prompt: "Run `/opsx:apply` to start implementing."
+- "Run `/opsx:apply` to start implementing."
 
-**Guardrails**
-- If a change with that name already exists, ask if user wants to continue it or create a new one
-- Keep tasks focused and actionable
+## Guardrails
+
+- Never modify files outside `openspec/changes/<name>/`
+- Never implement features during `/opsx:propose-tasks`
+- Never create source code changes
+- Never run build/migration/test commands unless explicitly requested
+- If implementation is requested, instruct the user to run `/opsx:apply`
+- Keep tasks focused, actionable, and implementation-ready
