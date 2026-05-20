@@ -18,5 +18,8 @@ export function useLoginMutation() {
       localStorage.setItem("token", data.data.accessToken);
       localStorage.setItem("refreshToken", data.data.refreshToken);
     },
+    onError: (error: Error) => {
+      console.error("[login] Error:", error.message);
+    },
   });
 }

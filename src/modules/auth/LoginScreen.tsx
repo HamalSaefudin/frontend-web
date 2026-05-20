@@ -1,21 +1,36 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "@/components/layouts";
 import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/ui/input-field";
-import { useState, type FormEvent } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { useLoginMutation } from "./hooks";
+import { loginSchema, type LoginInput } from "./schemas/authSchemas";
 import "./login.css";
 
 export function LoginScreen() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const loginMutation = useLoginMutation();
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    await loginMutation.mutateAsync({ email, password });
-    navigate("/dashboard");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data: LoginInput) => {
+    try {
+      await loginMutation.mutateAsync(data);
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("[LoginScreen] Submit error:", error);
+    }
   };
 
   return (
@@ -23,24 +38,22 @@ export function LoginScreen() {
       <Card variant="elevated">
         <div className="login-content">
           <h1 className="login-title">Login</h1>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <InputField
               id="email"
               type="email"
               label="Email"
               placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              error={errors.email?.message}
+              {...register("email")}
             />
             <InputField
               id="password"
               type="password"
               label="Password"
               placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              error={errors.password?.message}
+              {...register("password")}
             />
             <Button
               type="submit"
