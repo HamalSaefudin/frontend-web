@@ -4,41 +4,50 @@ import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/ui/input-field";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
-import { useLoginMutation } from "./hooks";
-import { loginSchema, type LoginInput } from "./schemas/authSchemas";
-import "./login.css";
+import { useRegisterMutation } from "./hooks";
+import { registerSchema, type RegisterInput } from "./schemas/authSchemas";
+import "./register.css";
 
-export function LoginScreen() {
+export function RegisterScreen() {
   const navigate = useNavigate();
-  const loginMutation = useLoginMutation();
+  const registerMutation = useRegisterMutation();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = async (data: LoginInput) => {
+  const onSubmit = async (data: RegisterInput) => {
     try {
-      await loginMutation.mutateAsync(data);
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("[LoginScreen] Submit error:", error);
+      await registerMutation.mutateAsync(data);
+      navigate("/login");
+    } catch {
+      // Error is handled by the mutation
     }
   };
 
   return (
-    <div className="login-container">
+    <div className="register-container">
       <Card variant="elevated">
-        <div className="login-content">
-          <h1 className="login-title">Login</h1>
+        <div className="register-content">
+          <h1 className="register-title">Create Account</h1>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <InputField
+              id="name"
+              type="text"
+              label="Full Name"
+              placeholder="Enter your full name"
+              error={errors.name?.message}
+              {...register("name")}
+            />
             <InputField
               id="email"
               type="email"
@@ -51,22 +60,22 @@ export function LoginScreen() {
               id="password"
               type="password"
               label="Password"
-              placeholder="Enter your password"
+              placeholder="Enter your password (min 8 characters)"
               error={errors.password?.message}
               {...register("password")}
             />
             <Button
               type="submit"
-              loading={loginMutation.isPending}
+              loading={registerMutation.isPending}
               className="w-full"
             >
-              Sign In
+              Create Account
             </Button>
           </form>
-          <p className="login-register-link">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-link">
-              Create Account
+          <p className="register-login-link">
+            Already have an account?{" "}
+            <Link to="/login" className="text-link">
+              Sign In
             </Link>
           </p>
         </div>

@@ -1,4 +1,4 @@
-.login-container {
+.register-container {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -7,16 +7,16 @@
   padding: 1.5rem;
 }
 
-.login-container .card {
+.register-container .card {
   width: 100%;
   max-width: 420px;
 }
 
-.login-content {
+.register-content {
   padding: 0.5rem 0.25rem;
 }
 
-.login-title {
+.register-title {
   margin-top: 0;
   margin-bottom: 1.75rem;
   text-align: center;
@@ -25,7 +25,7 @@
   color: var(--color-text-primary);
 }
 
-.login-register-link {
+.register-login-link {
   margin-top: 1.25rem;
   font-size: 0.875rem;
   color: var(--color-text-secondary);
