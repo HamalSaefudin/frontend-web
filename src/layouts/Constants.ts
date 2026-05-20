@@ -1,4 +1,4 @@
-import { LayoutDashboardIcon, PackageIcon, UsersIcon, FileTextIcon, ClipboardCheckIcon, WalletIcon } from "lucide-react";
+import { LayoutDashboardIcon, PackageIcon, UsersIcon, FileTextIcon, ClipboardCheckIcon, WalletIcon, LandmarkIcon } from "lucide-react";
 
 export const NAV_GROUPS = [
   {
@@ -22,6 +22,7 @@ export const NAV_GROUPS = [
       { to: "/master-service", label: "Master Service", icon: PackageIcon },
       { to: "/master-cabang", label: "Master Cabrera", icon: PackageIcon },
       { to: "/master-kas", label: "Master Kas", icon: WalletIcon },
+      { to: "/master-coa", label: "Master COA", icon: LandmarkIcon },
     ],
   },
 ] as const;

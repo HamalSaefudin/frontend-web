@@ -23,9 +23,6 @@ const DUMMY_KAS: MasterKas[] = [
   { id: "5", kodeKas: "KS005", namaCabang: "Cabang Yogyakarta", namaKas: "Kas Yogyakarta", status: true, createdAt: "2024-01-05T00:00:00Z", updatedAt: "2024-01-05T00:00:00Z" },
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _DUMMY_KAS = DUMMY_KAS;
-
 // Get list of master kas with pagination, search, and filter
 export const getMasterKasList = async (filters: MasterKasFilters = {}): Promise<MasterKasResponse> => {
   // TODO: Replace with actual API call to GET /api/master-kas
