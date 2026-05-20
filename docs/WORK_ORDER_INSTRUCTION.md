@@ -46,7 +46,7 @@ Contoh yang bagus:
 ## 2. Developer bikin proposal
 
 ```bash
-/openspec-propose
+/openspec-propose-task
 ```
 
 Baca semua file yang muncul di `openspec/changes/<nama-fitur>/`.  
@@ -83,5 +83,4 @@ Buka PR → setelah merge, jalankan:
 ## Referensi
 
 - [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md)
-- [README.md](../README.md)
 - [CLAUDE.md](../CLAUDE.md)
