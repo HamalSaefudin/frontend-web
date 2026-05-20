@@ -30,6 +30,8 @@ export const useLokasiList = (params?: LokasiFilterParams) => {
   return useQuery({
     queryKey: ['lokasi', 'filter', queryParams],
     queryFn: () => filterLokasi(queryParams),
+    staleTime: 0,  // Always fetch fresh data
+    refetchOnWindowFocus: false,
   });
 };
 

@@ -49,6 +49,7 @@ export function MasterLocatorScreen() {
   const [editingLokasi, setEditingLokasi] = useState<LokasiWarehouse | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<LokasiWarehouse | null>(null);
   const [lokasiList, setLokasiList] = useState<LokasiWarehouse[]>([]);
+  const [totalElements, setTotalElements] = useState(0);
 
   // Build query params with pagination (API uses 1-based page)
   const queryParams = {
@@ -67,16 +68,17 @@ export function MasterLocatorScreen() {
   useEffect(() => {
     if (fetchedData?.data?.items) {
       setLokasiList(fetchedData.data.items);
+      setTotalElements(fetchedData.data.totalElements || 0);
     }
   }, [fetchedData]);
 
-  // Table columns
+  // Table columns - recalculate when page or rowsPerPage changes
   const columns: ColumnDef<LokasiWarehouse>[] = useMemo(
     () => [
       {
         id: 'no',
         header: 'No',
-        cell: ({ row }) => row.index + 1,
+        cell: ({ row }) => page * rowsPerPage + row.index + 1,
         meta: { className: 'min-w-12 text-center' },
       },
       {
@@ -117,7 +119,7 @@ export function MasterLocatorScreen() {
         meta: { className: 'min-w-24 text-center' },
       },
     ],
-    [],
+    [page, rowsPerPage],
   );
 
   const handleCreateClick = () => {
@@ -207,7 +209,6 @@ export function MasterLocatorScreen() {
   };
 
   const isLoadingOverall = isLoading || isFetching;
-  const totalRows = lokasiList.length;
 
   return (
     <div className="p-6">
@@ -265,10 +266,10 @@ export function MasterLocatorScreen() {
         <DataTable
           columns={columns}
           data={lokasiList}
-          serverSide={false}
+          serverSide={true}
           page={page}
           rowsPerPage={rowsPerPage}
-          totalRows={totalRows}
+          totalRows={totalElements}
           onPageChange={handlePageChange}
           onRowsPerPageChange={handleRowsPerPageChange}
           isLoading={false}

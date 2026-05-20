@@ -37,9 +37,9 @@ interface MutationResponse<T = unknown> {
 }
 
 // List Lokasi Warehouse
-export const getLokasiList = async (params?: LokasiFilterParams): Promise<MutationResponse<{ items: LokasiWarehouse[]; total: number }>> => {
+export const getLokasiList = async (params?: LokasiFilterParams): Promise<MutationResponse<{ items: LokasiWarehouse[]; totalElements: number }>> => {
   try {
-    const response = await apiClient.get<ApiResponse<{ items: LokasiWarehouse[]; total: number }>>('/api/v1/master-locator', { params });
+    const response = await apiClient.get<ApiResponse<{ items: LokasiWarehouse[]; totalElements: number }>>('/api/v1/master-locator', { params });
     return response.data;
   } catch (error: any) {
     return {
@@ -133,9 +133,9 @@ export const updateLokasiStatus = async (id: string, status: 'ACTIVE' | 'INACTIV
 };
 
 // Filter Lokasi Warehouse
-export const filterLokasi = async (params: LokasiFilterParams): Promise<MutationResponse<{ items: LokasiWarehouse[]; total: number }>> => {
+export const filterLokasi = async (params: LokasiFilterParams): Promise<MutationResponse<{ items: LokasiWarehouse[]; totalElements: number }>> => {
   try {
-    const response = await apiClient.get<ApiResponse<{ items: LokasiWarehouse[]; total: number }>>('/api/v1/master-locator/filter', { params });
+    const response = await apiClient.get<ApiResponse<{ items: LokasiWarehouse[]; totalElements: number }>>('/api/v1/master-locator/filter', { params });
     return response.data;
   } catch (error: any) {
     return {
