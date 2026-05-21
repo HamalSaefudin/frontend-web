@@ -16,8 +16,10 @@ import { EkspedisiInventoryScreen } from "./modules/ekspedisi-inventory/Ekspedis
 import { FjbScreen } from "./modules/fjb/FjbScreen";
 import { PdiScreen } from "./modules/pdi/PdiScreen";
 import { MasterKasScreen } from "./modules/master-kas/MasterKasScreen";
+import { MasterLocatorScreen } from "./modules/master-locator/MasterLocatorScreen";
 
 const isAuthenticated = () => !!localStorage.getItem("token");
+
 function App() {
   return (
     <ModalProvider>
@@ -48,6 +50,7 @@ function App() {
           <Route path="/leads" element={<LeadsScreen />} />
           <Route path="/master-service" element={<MasterServiceScreen />} />
           <Route path="/master-cabang" element={<MasterCabangScreen />} />
+          <Route path="/master-locator" element={<MasterLocatorScreen />} />
           <Route path="/ekspedisi-inventory" element={<EkspedisiInventoryScreen />} />
           <Route path="/fjb" element={<FjbScreen />} />
           <Route path="/pdi" element={<PdiScreen />} />

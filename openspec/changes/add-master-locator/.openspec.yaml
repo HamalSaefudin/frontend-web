@@ -1,0 +1,4 @@
+name: add-master-locator
+version: 1
+schema: task-only
+description: Create UI for Master Lokasi Warehouse feature
