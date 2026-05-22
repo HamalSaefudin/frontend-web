@@ -1,7 +1,21 @@
 import axios, { type AxiosInstance } from 'axios'
 
+// Use relative URL in dev (via Vite proxy) or absolute URL in production
+const getBaseURL = () => {
+  if (import.meta.env.VITE_API_URL) {
+    console.log('[API Config] Using VITE_API_URL:', import.meta.env.VITE_API_URL)
+    return import.meta.env.VITE_API_URL
+  }
+  if (import.meta.env.DEV) {
+    console.log('[API Config] DEV mode - using relative URL (proxy)')
+    return ''  // Relative URL - goes through Vite proxy
+  }
+  console.log('[API Config] Production - using absolute URL')
+  return 'http://192.168.19.247:8080'
+}
+
 const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: getBaseURL(),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -10,6 +24,7 @@ const apiClient: AxiosInstance = axios.create({
 
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
+  console.log('[API Request]', config.method?.toUpperCase(), config.url, '| baseURL:', apiClient.defaults.baseURL, '| hasToken:', !!token)
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
