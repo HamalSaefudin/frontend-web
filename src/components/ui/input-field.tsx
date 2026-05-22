@@ -49,6 +49,7 @@ function InputField({
   value,
   onChange,
   onKeyDown,
+  disabled,
   className,
   ...props
 }: InputFieldProps) {
@@ -110,7 +111,7 @@ function InputField({
       {label && (
         <Label htmlFor={id}>
           {label}
-          {required && <span className="ml-0.5 text-destructive">*</span>}
+          {required && !disabled && <span className="ml-0.5 text-destructive">*</span>}
         </Label>
       )}
       <div className="relative">

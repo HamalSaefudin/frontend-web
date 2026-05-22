@@ -486,7 +486,7 @@ export function SelectField(props: SelectFieldProps) {
       {label && (
         <Label htmlFor={id}>
           {label}
-          {required && <span className="ml-0.5 text-destructive">*</span>}
+          {required && !props.disabled && <span className="ml-0.5 text-destructive">*</span>}
         </Label>
       )}
 
