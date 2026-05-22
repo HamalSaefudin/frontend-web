@@ -1,5 +1,15 @@
 import { z } from 'zod';
 
+export const transactionSchema = z.object({
+  transactionName: z.string().min(1, 'Nama transaksi wajib diisi'),
+  category: z.enum(['TRX_IN', 'TRX_OUT'], {
+    message: 'Kategori wajib dipilih',
+  }),
+  subgroup: z.string().optional(),
+  group: z.string().optional(),
+  isSaved: z.boolean(),
+});
+
 export const masterCoaCreateSchema = z.object({
   coaName: z
     .string()
@@ -9,20 +19,7 @@ export const masterCoaCreateSchema = z.object({
     .array(z.string())
     .min(1, 'Pilih minimal satu cabang'),
   statusActive: z.boolean(),
-  transactions: z
-    .array(
-      z.object({
-        transactionName: z.string().min(1, 'Nama transaksi wajib diisi'),
-        category: z.enum(['TRX_IN', 'TRX_OUT'], {
-          message: 'Kategori wajib dipilih',
-        }),
-        subgroup: z.string().min(1, 'Subgrup wajib diisi'),
-        group: z.string().min(1, 'Grup wajib diisi'),
-        isSaved: z.boolean().default(true),
-      })
-    )
-    .optional()
-    .default([]),
+  transactions: z.array(transactionSchema),
 });
 
 export const masterCoaUpdateSchema = z.object({
@@ -34,6 +31,7 @@ export const masterCoaUpdateSchema = z.object({
     .array(z.string())
     .min(1, 'Pilih minimal satu cabang'),
   statusActive: z.boolean(),
+  transactions: z.array(transactionSchema),
 });
 
 export const copyMasterCoaSchema = z.object({

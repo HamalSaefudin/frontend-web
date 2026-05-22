@@ -1,7 +1,7 @@
-export const COA_CATEGORY_OPTIONS = [
+export const COA_CATEGORY_OPTIONS: { value: string; label: string }[] = [
   { value: 'TRX_IN', label: 'Transaksi Masuk' },
   { value: 'TRX_OUT', label: 'Transaksi Keluar' },
-] as const;
+];
 
 export const COA_STATUS_OPTIONS = [
   { value: '', label: 'Semua Status' },

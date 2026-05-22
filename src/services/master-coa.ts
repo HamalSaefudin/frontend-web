@@ -29,14 +29,20 @@ export interface CreateMasterCoaRequest {
   transactions: {
     transactionName: string;
     category: 'TRX_IN' | 'TRX_OUT';
-    subgroup: string;
-    group: string;
+    subgroup?: string;
+    group?: string;
   }[];
 }
 
 export interface UpdateMasterCoaRequest {
   coaName: string;
   branches: string[];
+  transactions: {
+    transactionName: string;
+    category: 'TRX_IN' | 'TRX_OUT';
+    subgroup?: string;
+    group?: string;
+  }[];
 }
 
 export interface CopyMasterCoaRequest {
@@ -115,7 +121,7 @@ export const updateMasterCoa = async (
 export const activateMasterCoa = async (
   coaId: string
 ): Promise<ApiResponse<{ coaId: string; status: string }>> => {
-  const response = await apiClient.patch<ApiResponse<{ coaId: string; status: string }>>(
+  const response = await apiClient.put<ApiResponse<{ coaId: string; status: string }>>(
     `/api/v1/master-coas/${coaId}/activate`
   );
   return response.data;
@@ -124,7 +130,7 @@ export const activateMasterCoa = async (
 export const deactivateMasterCoa = async (
   coaId: string
 ): Promise<ApiResponse<{ coaId: string; status: string }>> => {
-  const response = await apiClient.patch<ApiResponse<{ coaId: string; status: string }>>(
+  const response = await apiClient.put<ApiResponse<{ coaId: string; status: string }>>(
     `/api/v1/master-coas/${coaId}/deactivate`
   );
   return response.data;
@@ -134,7 +140,7 @@ export const copyMasterCoa = async (
   coaId: string,
   data: CopyMasterCoaRequest
 ): Promise<ApiResponse<{ newCoaId: string }>> => {
-  const response = await apiClient.post<ApiResponse<{ newCoaId: string }>>(
+  const response = await apiClient.put<ApiResponse<{ newCoaId: string }>>(
     `/api/v1/master-coas/${coaId}/copy`,
     data
   );

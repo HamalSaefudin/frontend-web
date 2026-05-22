@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   useQueryMasterCoaList,
+  useQueryMasterCoaDetail,
   useMutationCreateMasterCoa,
   useMutationUpdateMasterCoa,
   useMutationActivateMasterCoa,
@@ -10,6 +11,7 @@ import {
   useMutationDeleteMasterCoa,
   useQueryCabang,
   type MasterCoa,
+  type MasterCoaDetail,
 } from './hooks';
 import type {
   MasterCoaCreateFormData,
@@ -83,8 +85,8 @@ export function MasterCoaScreen() {
 
   const apiPage = page - 1;
   const { data: listResponse, isLoading, isFetching } = useQueryMasterCoaList(
-    searchKeyword || undefined,
-    statusFilter || undefined,
+    searchKeyword,
+    statusFilter,
     apiPage,
     rowsPerPage,
   );
@@ -154,16 +156,24 @@ export function MasterCoaScreen() {
   };
 
   const handleFormSubmit = async (data: MasterCoaCreateFormData | MasterCoaUpdateFormData) => {
+    console.log('[MasterCoaScreen] handleFormSubmit called with data:', data);
+    console.log('[MasterCoaScreen] editingCoa:', editingCoa);
     setFormError('');
     setFormServerErrors([]);
 
     if (editingCoa) {
-      const { statusActive, ...rest } = data as MasterCoaUpdateFormData;
+      const { statusActive, transactions, ...rest } = data as MasterCoaUpdateFormData;
       const result = await updateMutation.mutateAsync({
         coaId: editingCoa.coaId,
         data: {
           coaName: rest.coaName,
           branches: rest.branches,
+          transactions: (transactions || []).map((t) => ({
+            transactionName: t.transactionName,
+            category: t.category,
+            subgroup: t.subgroup || undefined,
+            group: t.group || undefined,
+          })),
         } satisfies UpdateMasterCoaRequest,
       });
       if (!result.success) {

@@ -73,6 +73,7 @@ Rencana form (cabang multi-select + status switch saat submit): [docs/master-coa
 - [x] 15.5 Replace manual fields.map() with DataTable component
 - [x] 15.6 Add emptyStateMessage to DataTable
 - [x] 15.7 Test inline edit/save flow
+- [x] 15.8 Set default empty transactions array (remove pre-populated row)
 
 ## 8. Components - Dialogs/Modals
 

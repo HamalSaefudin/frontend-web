@@ -15,6 +15,8 @@ import {
   type CopyMasterCoaRequest,
 } from '@/services/master-coa';
 import { fetchBranches } from '@/services/master-cabang';
+import { fetchDataAsync } from '@/utils';
+import { useErrorStore } from '@/store/useErrorStore';
 
 export type { MasterCoa, MasterCoaDetail };
 export {
@@ -24,9 +26,15 @@ export {
 };
 
 export const useQueryCabang = () => {
+  const setError = useErrorStore((s) => s.setError);
   return useQuery({
     queryKey: ['cabang'],
-    queryFn: () => fetchBranches(),
+    queryFn: () =>
+      fetchDataAsync({
+        asyncFn: () => fetchBranches(),
+        setError,
+        menuName: 'cabang',
+      }),
   });
 };
 
@@ -37,47 +45,82 @@ export const useQueryMasterCoaList = (
   page = 0,
   size = 10
 ) => {
+  const setError = useErrorStore((s) => s.setError);
   return useQuery({
     queryKey: ['master-coas', keyword, status, page, size],
-    queryFn: () => fetchMasterCoas(keyword, status, page, size),
+    queryFn: () =>
+      fetchDataAsync({
+        asyncFn: () => fetchMasterCoas(keyword, status, page, size),
+        setError,
+        menuName: 'master-coa',
+      }),
   });
 };
 
 export const useQueryMasterCoaDetail = (coaId: string) => {
+  const setError = useErrorStore((s) => s.setError);
   return useQuery({
     queryKey: ['master-coa', coaId],
-    queryFn: () => fetchMasterCoaById(coaId),
+    queryFn: () =>
+      fetchDataAsync({
+        asyncFn: () => fetchMasterCoaById(coaId),
+        setError,
+        menuName: 'master-coa',
+      }),
     enabled: !!coaId,
   });
 };
 
 // Mutation hooks
 export const useMutationCreateMasterCoa = () => {
+  const setError = useErrorStore((s) => s.setError);
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateMasterCoaRequest) => createMasterCoa(data),
+    mutationFn: (data: CreateMasterCoaRequest) =>
+      fetchDataAsync({
+        asyncFn: () => createMasterCoa(data),
+        setError,
+        menuName: 'master-coa',
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['master-coas'] });
+    },
+    onError: (error: Error) => {
+      console.error('[createMasterCoa] Error:', error.message);
     },
   });
 };
 
 export const useMutationUpdateMasterCoa = () => {
+  const setError = useErrorStore((s) => s.setError);
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ coaId, data }: { coaId: string; data: UpdateMasterCoaRequest }) =>
-      updateMasterCoa(coaId, data),
+      fetchDataAsync({
+        asyncFn: () => updateMasterCoa(coaId, data),
+        setError,
+        menuName: 'master-coa',
+      }),
     onSuccess: (_, { coaId }) => {
       queryClient.invalidateQueries({ queryKey: ['master-coas'] });
       queryClient.invalidateQueries({ queryKey: ['master-coa', coaId] });
+    },
+    onError: (error: Error) => {
+      console.error('[updateMasterCoa] Error:', error.message);
     },
   });
 };
 
 export const useMutationActivateMasterCoa = () => {
+  const setError = useErrorStore((s) => s.setError);
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (coaId: string) => activateMasterCoa(coaId),
+    mutationFn: (coaId: string) =>
+      fetchDataAsync({
+        asyncFn: () => activateMasterCoa(coaId),
+        setError,
+        menuName: 'master-coa',
+      }),
     onMutate: async (coaId) => {
       await queryClient.cancelQueries({ queryKey: ['master-coas'] });
       const previousData = queryClient.getQueryData(['master-coas']);
@@ -113,9 +156,15 @@ export const useMutationActivateMasterCoa = () => {
 };
 
 export const useMutationDeactivateMasterCoa = () => {
+  const setError = useErrorStore((s) => s.setError);
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (coaId: string) => deactivateMasterCoa(coaId),
+    mutationFn: (coaId: string) =>
+      fetchDataAsync({
+        asyncFn: () => deactivateMasterCoa(coaId),
+        setError,
+        menuName: 'master-coa',
+      }),
     onMutate: async (coaId) => {
       await queryClient.cancelQueries({ queryKey: ['master-coas'] });
       const previousData = queryClient.getQueryData(['master-coas']);
@@ -151,22 +200,39 @@ export const useMutationDeactivateMasterCoa = () => {
 };
 
 export const useMutationCopyMasterCoa = () => {
+  const setError = useErrorStore((s) => s.setError);
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ coaId, data }: { coaId: string; data: CopyMasterCoaRequest }) =>
-      copyMasterCoa(coaId, data),
+      fetchDataAsync({
+        asyncFn: () => copyMasterCoa(coaId, data),
+        setError,
+        menuName: 'master-coa',
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['master-coas'] });
+    },
+    onError: (error: Error) => {
+      console.error('[copyMasterCoa] Error:', error.message);
     },
   });
 };
 
 export const useMutationDeleteMasterCoa = () => {
+  const setError = useErrorStore((s) => s.setError);
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (coaId: string) => deleteMasterCoa(coaId),
+    mutationFn: (coaId: string) =>
+      fetchDataAsync({
+        asyncFn: () => deleteMasterCoa(coaId),
+        setError,
+        menuName: 'master-coa',
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['master-coas'] });
+    },
+    onError: (error: Error) => {
+      console.error('[deleteMasterCoa] Error:', error.message);
     },
   });
 };

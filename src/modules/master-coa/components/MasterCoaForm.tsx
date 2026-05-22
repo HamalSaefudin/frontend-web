@@ -7,6 +7,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ColumnDef } from '@tanstack/react-table';
 import { AppModal } from '@/components/AppModal';
+import { LoadingOverlay } from '@/components/LoadingOverlay';
 import { InputField } from '@/components/ui/input-field';
 import { Button } from '@/components/ui/button';
 import { SelectField, type SelectOption } from '@/components/ui/select';
@@ -20,13 +21,14 @@ import {
   type MasterCoaUpdateFormData,
 } from '../utils/validationSchemas';
 import { COA_CATEGORY_OPTIONS } from '../constants';
-import type { MasterCoa } from '@/services/master-coa';
+import type { MasterCoa, CoaTransaction } from '@/services/master-coa';
 import { useQueryCabang } from '../hooks';
+import { useQueryMasterCoaDetail } from '../hooks';
 
 interface MasterCoaFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: MasterCoaCreateFormData | MasterCoaUpdateFormData) => Promise<void>;
+  onSubmit: (data: MasterCoaCreateFormData) => Promise<void>;
   initialData?: MasterCoa | null;
   isLoading?: boolean;
   serverErrors?: { field: string; message: string }[];
@@ -45,8 +47,8 @@ type TransactionRow = {
   index: number;
   transactionName: string;
   category: 'TRX_IN' | 'TRX_OUT';
-  subgroup: string;
-  group: string;
+  subgroup?: string;
+  group?: string;
   isSaved: boolean;
 };
 
@@ -96,16 +98,12 @@ function buildTransactionColumns(
             name={`transactions.${i}.category`}
             control={control}
             render={({ field }) => (
-              <select
-                {...field}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                {COA_CATEGORY_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+              <SelectField
+                placeholder="Pilih"
+                options={COA_CATEGORY_OPTIONS}
+                value={field.value}
+                onChange={field.onChange}
+              />
             )}
           />
         );
@@ -172,6 +170,17 @@ function buildTransactionColumns(
   ];
 }
 
+// Helper to convert CoaTransaction to form transaction format
+function toFormTransaction(t: CoaTransaction) {
+  return {
+    transactionName: t.transactionName,
+    category: t.category,
+    subgroup: t.subgroup,
+    group: t.group,
+    isSaved: true,
+  };
+}
+
 export function MasterCoaForm({
   open,
   onOpenChange,
@@ -183,6 +192,11 @@ export function MasterCoaForm({
 }: MasterCoaFormProps) {
   const isEdit = !!initialData;
   const schema = isEdit ? masterCoaUpdateSchema : masterCoaCreateSchema;
+
+  // Fetch full detail when editing (list data doesn't include transactions)
+  const coaId = initialData?.coaId;
+  const { data: detailResponse, isLoading: detailLoading } = useQueryMasterCoaDetail(coaId ?? '');
+  const detailData = detailResponse?.data;
 
   const { data: cabangData = [], isLoading: cabangLoading } = useQueryCabang();
 
@@ -199,17 +213,19 @@ export function MasterCoaForm({
     reset,
     watch,
     setValue,
+    getValues,
+    trigger,
   } = useForm<MasterCoaCreateFormData | MasterCoaUpdateFormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       coaName: '',
       branches: [],
       statusActive: true,
-      transactions: [{ ...emptyTransaction, isSaved: false }],
+      transactions: [],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control,
     name: 'transactions' as 'transactions',
   });
@@ -235,39 +251,77 @@ export function MasterCoaForm({
   useEffect(() => {
     if (!open) return;
     if (initialData) {
+      // For edit mode, use detailData dari API (list tidak include transactions)
+      const coaData = detailData || initialData;
+      const formTransactions = (coaData as unknown as { transactions?: CoaTransaction[] }).transactions?.map(toFormTransaction) ?? [];
+      replace(formTransactions);
       reset({
-        coaName: initialData.coaName,
-        branches: initialData.branches,
-        statusActive: initialData.status === 'ACTIVE',
+        coaName: coaData.coaName,
+        branches: coaData.branches,
+        statusActive: coaData.status === 'ACTIVE',
+        transactions: formTransactions,
       });
     } else {
+      // For create mode, clear everything
+      replace([]);
       reset({
         coaName: '',
         branches: [],
         statusActive: true,
-        transactions: [{ ...emptyTransaction, isSaved: false }],
+        transactions: [],
       });
     }
-  }, [open, initialData, reset]);
+  }, [open, initialData, detailData, reset, replace]);
 
-  const handleFormSubmit = async (data: MasterCoaCreateFormData | MasterCoaUpdateFormData) => {
-    await onSubmit(data);
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // Don't handle form submit here - use onButtonClick instead
+  };
+
+  const onButtonClick = async () => {
+    const isValid = await trigger();
+    if (!isValid) return;
+
+    const formValues = getValues();
+    try {
+      await onSubmit(formValues);
+      replace([]);
+      reset();
+      onOpenChange(false);
+    } catch (err) {
+      console.error('[MasterCoaForm] Submit error:', err);
+      throw err;
+    }
+  };
+
+  const handleClose = () => {
+    replace([]);
     reset();
     onOpenChange(false);
   };
 
-  const createErrors = !isEdit
-    ? (errors as import('react-hook-form').FieldErrors<MasterCoaCreateFormData>)
-    : null;
+  // Show loading saat fetch detail saat edit mode
+  if (isEdit && detailLoading) {
+    return (
+      <AppModal
+        isOpen={open}
+        onClose={handleClose}
+        title={isEdit ? 'Edit Master COA' : 'Tambah Master COA'}
+        className="max-w-4xl"
+      >
+        <LoadingOverlay message="Memuat data COA..." />
+      </AppModal>
+    );
+  }
 
   return (
     <AppModal
       isOpen={open}
-      onClose={() => onOpenChange(false)}
+      onClose={handleClose}
       title={isEdit ? 'Edit Master COA' : 'Tambah Master COA'}
       className="max-w-4xl"
     >
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+      <form className="space-y-4">
         <InputField
           label="Nama COA"
           placeholder="Masukkan nama COA"
@@ -313,30 +367,28 @@ export function MasterCoaForm({
           />
         </div>
 
-        {!isEdit && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Jenis Transaksi</h3>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="gap-1"
-                onClick={() => append({ ...emptyTransaction, isSaved: false })}
-              >
-                <PlusIcon className="size-4" />
-                Tambah
-              </Button>
-            </div>
-
-            <DataTable
-              columns={transactionColumns}
-              data={transactionRows}
-              serverSide={false}
-              emptyStateMessage="Belum ada transaksi"
-            />
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold">Jenis Transaksi</h3>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1"
+              onClick={() => append({ ...emptyTransaction, isSaved: false })}
+            >
+              <PlusIcon className="size-4" />
+              Tambah
+            </Button>
           </div>
-        )}
+
+          <DataTable
+            columns={transactionColumns}
+            data={transactionRows}
+            serverSide={false}
+            emptyStateMessage="Belum ada transaksi"
+          />
+        </div>
 
         {errorMessage && <p className="text-sm text-destructive">{errorMessage}</p>}
 
@@ -352,12 +404,12 @@ export function MasterCoaForm({
           <Button
             type="button"
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={handleClose}
             disabled={isSubmitting}
           >
             Batal
           </Button>
-          <Button type="submit" disabled={isSubmitting || isLoading}>
+          <Button type="button" onClick={onButtonClick} disabled={isSubmitting || isLoading}>
             {isSubmitting || isLoading ? 'Menyimpan...' : isEdit ? 'Perbarui' : 'Simpan'}
           </Button>
         </div>
