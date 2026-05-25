@@ -121,10 +121,7 @@ export function MasterCabangScreen() {
         ),
       );
     } else {
-      const result = await createMutation.mutateAsync(formData);
-      if (result.data) {
-        setBranches((prev) => [...prev, result.data as Branch]);
-      }
+      await createMutation.mutateAsync(formData);
     }
     setFormOpen(false);
   };
@@ -139,17 +136,17 @@ export function MasterCabangScreen() {
   const handleImportFile = async (file: File) => {
     try {
       const result = await importMutation.mutateAsync(file);
-      if (result.success) {
+      if (result.data.success) {
         // Refresh the branches list after import
         // Note: In a real app, you'd call a refetch function from the useQuery hook
         return {
           success: true,
-          message: `Import successful: ${result.data?.importedCount || 0} branches imported`,
+          message: `Import successful: branches imported`,
         };
       }
       return {
         success: false,
-        message: result.message || 'Import failed',
+        message: result.data.message || 'Import failed',
       };
     } catch (error) {
       return {

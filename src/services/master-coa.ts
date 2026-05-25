@@ -1,4 +1,5 @@
 import apiClient from './api-client';
+import type { IBaseResponse } from '@/types';
 
 export interface MasterCoa {
   id: string;
@@ -49,14 +50,6 @@ export interface CopyMasterCoaRequest {
   branches: string[];
 }
 
-export interface ApiResponse<T = unknown> {
-  success: boolean;
-  code: string;
-  message: string;
-  data: T | null;
-  errors: { field: string; message: string }[];
-}
-
 export interface PaginatedData<T> {
   items: T[];
   pagination: {
@@ -67,89 +60,36 @@ export interface PaginatedData<T> {
   };
 }
 
-// Error codes
-export const COA_ERRORS = {
-  COA_NOT_FOUND: 'COA_NOT_FOUND',
-  BRANCH_ALREADY_USED: 'BRANCH_ALREADY_USED',
-  INVALID_STATE: 'INVALID_STATE',
-  COA_ALREADY_USED: 'COA_ALREADY_USED',
-  INVALID_COA_NAME: 'INVALID_COA_NAME',
-  TRANSACTION_ALREADY_USED: 'TRANSACTION_ALREADY_USED',
-} as const;
-
-// API calls
-export const fetchMasterCoas = async (
-  keyword?: string,
-  status?: string,
-  page = 0,
-  size = 10
-): Promise<ApiResponse<PaginatedData<MasterCoa>>> => {
-  const response = await apiClient.get<ApiResponse<PaginatedData<MasterCoa>>>('/api/v1/master-coas', {
+export const fetchMasterCoas = async (keyword?: string, status?: string, page = 0, size = 10) => {
+  return await apiClient.get<IBaseResponse<PaginatedData<MasterCoa>>>('/api/v1/master-coas', {
     params: { keyword, status, page, size },
-  });
-  return response.data;
-};
+  })
+}
 
-export const fetchMasterCoaById = async (
-  coaId: string
-): Promise<ApiResponse<MasterCoaDetail | null>> => {
-  const response = await apiClient.get<ApiResponse<MasterCoaDetail | null>>(`/api/v1/master-coas/${coaId}`);
-  return response.data;
-};
+export const fetchMasterCoaById = async (coaId: string) => {
+  return await apiClient.get<IBaseResponse<MasterCoaDetail | null>>(`/api/v1/master-coas/${coaId}`)
+}
 
-export const createMasterCoa = async (
-  data: CreateMasterCoaRequest
-): Promise<ApiResponse<{ coaId: string; status: string }>> => {
-  const response = await apiClient.post<ApiResponse<{ coaId: string; status: string }>>(
-    '/api/v1/master-coas',
-    data
-  );
-  return response.data;
-};
+export const createMasterCoa = async (data: CreateMasterCoaRequest) => {
+  return await apiClient.post<IBaseResponse<{ coaId: string; status: string }>>('/api/v1/master-coas', data)
+}
 
-export const updateMasterCoa = async (
-  coaId: string,
-  data: UpdateMasterCoaRequest
-): Promise<ApiResponse<{ coaId: string }>> => {
-  const response = await apiClient.put<ApiResponse<{ coaId: string }>>(
-    `/api/v1/master-coas/${coaId}`,
-    data
-  );
-  return response.data;
-};
+export const updateMasterCoa = async (coaId: string, data: UpdateMasterCoaRequest) => {
+  return await apiClient.put<IBaseResponse<{ coaId: string }>>(`/api/v1/master-coas/${coaId}`, data)
+}
 
-export const activateMasterCoa = async (
-  coaId: string
-): Promise<ApiResponse<{ coaId: string; status: string }>> => {
-  const response = await apiClient.put<ApiResponse<{ coaId: string; status: string }>>(
-    `/api/v1/master-coas/${coaId}/activate`
-  );
-  return response.data;
-};
+export const activateMasterCoa = async (coaId: string) => {
+  return await apiClient.put<IBaseResponse<{ coaId: string; status: string }>>(`/api/v1/master-coas/${coaId}/activate`)
+}
 
-export const deactivateMasterCoa = async (
-  coaId: string
-): Promise<ApiResponse<{ coaId: string; status: string }>> => {
-  const response = await apiClient.put<ApiResponse<{ coaId: string; status: string }>>(
-    `/api/v1/master-coas/${coaId}/deactivate`
-  );
-  return response.data;
-};
+export const deactivateMasterCoa = async (coaId: string) => {
+  return await apiClient.put<IBaseResponse<{ coaId: string; status: string }>>(`/api/v1/master-coas/${coaId}/deactivate`)
+}
 
-export const copyMasterCoa = async (
-  coaId: string,
-  data: CopyMasterCoaRequest
-): Promise<ApiResponse<{ newCoaId: string }>> => {
-  const response = await apiClient.put<ApiResponse<{ newCoaId: string }>>(
-    `/api/v1/master-coas/${coaId}/copy`,
-    data
-  );
-  return response.data;
-};
+export const copyMasterCoa = async (coaId: string, data: CopyMasterCoaRequest) => {
+  return await apiClient.put<IBaseResponse<{ newCoaId: string }>>(`/api/v1/master-coas/${coaId}/copy`, data)
+}
 
-export const deleteMasterCoa = async (
-  coaId: string
-): Promise<ApiResponse<{ coaId: string }>> => {
-  const response = await apiClient.delete<ApiResponse<{ coaId: string }>>(`/api/v1/master-coas/${coaId}`);
-  return response.data;
-};
+export const deleteMasterCoa = async (coaId: string) => {
+  return await apiClient.delete<IBaseResponse<{ coaId: string }>>(`/api/v1/master-coas/${coaId}`)
+}

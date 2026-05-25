@@ -8,7 +8,7 @@ import { SelectField } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
 import { AppModal } from "@/components/AppModal";
 import { fjbDetailSchema, type FjbDetailForm } from "../schemas/validationSchemas";
-import type { FjbListItem } from "@/services/fjb-types";
+import type { FjbListItem } from "@/types/types-fjb";
 import {
   useQueryFjbDetail,
   useMutationCreateFjb,
@@ -70,8 +70,8 @@ export function FjbFormModal({
 
   useEffect(() => {
     if (!open) return;
-    if (detailData) {
-      reset(detailData);
+    if (detailData?.data?.data) {
+      reset(detailData.data.data);
     } else if (!initialData) {
       reset(defaultValues);
     }

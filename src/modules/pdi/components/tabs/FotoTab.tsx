@@ -47,11 +47,12 @@ export function FotoTab({ unitId }: FotoTabProps) {
 
     for (const file of Array.from(files)) {
       try {
-        const newPhoto = await uploadMutation.mutateAsync({
+        const response = await uploadMutation.mutateAsync({
           unitId,
           photo: { file, kategori },
         });
-        append(newPhoto);
+        const newPhoto = response?.data?.data;
+        if (newPhoto) append(newPhoto);
       } catch (error) {
         console.error("Failed to upload photo:", error);
       }

@@ -1,25 +1,4 @@
-import { useMemo, useState } from 'react';
-import type { ColumnDef } from '@tanstack/react-table';
-import {
-  useQueryMasterCoaList,
-  useQueryMasterCoaDetail,
-  useMutationCreateMasterCoa,
-  useMutationUpdateMasterCoa,
-  useMutationActivateMasterCoa,
-  useMutationDeactivateMasterCoa,
-  useMutationCopyMasterCoa,
-  useMutationDeleteMasterCoa,
-  useQueryCabang,
-  type MasterCoa,
-  type MasterCoaDetail,
-} from './hooks';
-import type {
-  MasterCoaCreateFormData,
-  MasterCoaUpdateFormData,
-  CopyMasterCoaFormData,
-} from './utils/validationSchemas';
-import { DataTable } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+import { LoadingOverlay } from '@/components/LoadingOverlay';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,35 +7,47 @@ import {
   AlertDialogDescription,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { DataTable } from '@/components/ui/table';
+import type { CreateMasterCoaRequest, UpdateMasterCoaRequest } from '@/services/master-coa';
+import type { ColumnDef } from '@tanstack/react-table';
 import {
-  PlusIcon,
-  EditIcon,
-  TrashIcon,
   CopyIcon,
+  EditIcon,
+  PlusIcon,
+  TrashIcon,
 } from 'lucide-react';
-import { LoadingOverlay } from '@/components/LoadingOverlay';
+import { useMemo, useState } from 'react';
 import {
-  MasterCoaForm,
-  MasterCoaDetailDialog,
   MasterCoaCopyDialog,
+  MasterCoaDetailDialog,
+  MasterCoaForm,
 } from './components';
 import { COA_STATUS_OPTIONS } from './constants';
-import type { ApiResponse, CreateMasterCoaRequest, UpdateMasterCoaRequest } from '@/services/master-coa';
+import {
+  useMutationActivateMasterCoa,
+  useMutationCopyMasterCoa,
+  useMutationCreateMasterCoa,
+  useMutationDeactivateMasterCoa,
+  useMutationDeleteMasterCoa,
+  useMutationUpdateMasterCoa,
+  useQueryCabang,
+  useQueryMasterCoaList,
+  type MasterCoa
+} from './hooks';
 import { formatBranchCodes } from './utils/branchLabelMap';
-import { Switch } from '@/components/ui/switch';
+import type {
+  CopyMasterCoaFormData,
+  MasterCoaCreateFormData,
+  MasterCoaUpdateFormData,
+} from './utils/validationSchemas';
 
 interface MasterCoaRow extends MasterCoa {
   index: number;
 }
 
 type ConfirmAction = 'activate' | 'deactivate' | 'delete' | null;
-
-function getApiErrorMessage<T>(result: ApiResponse<T>) {
-  if (result.errors.length > 0) {
-    return result.errors.map((e) => e.message).join(', ');
-  }
-  return result.message;
-}
 
 export function MasterCoaScreen() {
   const [page, setPage] = useState(1);
@@ -79,9 +70,6 @@ export function MasterCoaScreen() {
     [],
   );
   const [copyError, setCopyError] = useState('');
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
-    null,
-  );
 
   const apiPage = page - 1;
   const { data: listResponse, isLoading, isFetching } = useQueryMasterCoaList(
@@ -100,8 +88,8 @@ export function MasterCoaScreen() {
 
   const { data: cabangList = [] } = useQueryCabang();
 
-  const items = listResponse?.data?.items ?? [];
-  const pagination = listResponse?.data?.pagination;
+  const items = useMemo(() => listResponse?.items ?? [], [listResponse]);
+  const pagination = listResponse?.pagination;
   const totalRows = pagination?.totalItems ?? 0;
 
   const tableData: MasterCoaRow[] = useMemo(
@@ -113,11 +101,6 @@ export function MasterCoaScreen() {
     [items, apiPage, rowsPerPage],
   );
 
-  const showFeedback = (type: 'success' | 'error', message: string) => {
-    setFeedback({ type, message });
-    setTimeout(() => setFeedback(null), 4000);
-  };
-
   const openCreate = () => {
     setEditingCoa(null);
     setFormError('');
@@ -127,15 +110,11 @@ export function MasterCoaScreen() {
 
   const openEdit = (coa: MasterCoa) => {
     setEditingCoa(coa);
+    setDetailCoaId(coa.coaId);
     setFormError('');
     setFormServerErrors([]);
     setFormOpen(true);
     setDetailOpen(false);
-  };
-
-  const openDetail = (coa: MasterCoa) => {
-    setDetailCoaId(coa.coaId);
-    setDetailOpen(true);
   };
 
   const openCopy = (coa: MasterCoa) => {
@@ -156,14 +135,9 @@ export function MasterCoaScreen() {
   };
 
   const handleFormSubmit = async (data: MasterCoaCreateFormData | MasterCoaUpdateFormData) => {
-    console.log('[MasterCoaScreen] handleFormSubmit called with data:', data);
-    console.log('[MasterCoaScreen] editingCoa:', editingCoa);
-    setFormError('');
-    setFormServerErrors([]);
-
     if (editingCoa) {
       const { statusActive, transactions, ...rest } = data as MasterCoaUpdateFormData;
-      const result = await updateMutation.mutateAsync({
+      await updateMutation.mutateAsync({
         coaId: editingCoa.coaId,
         data: {
           coaName: rest.coaName,
@@ -176,75 +150,37 @@ export function MasterCoaScreen() {
           })),
         } satisfies UpdateMasterCoaRequest,
       });
-      if (!result.success) {
-        setFormError(getApiErrorMessage(result));
-        setFormServerErrors(result.errors);
-        throw new Error(result.message);
-      }
 
       const wasActive = editingCoa.status === 'ACTIVE';
       if (statusActive !== wasActive) {
-        const statusResult = statusActive
-          ? await activateMutation.mutateAsync(editingCoa.coaId)
-          : await deactivateMutation.mutateAsync(editingCoa.coaId);
-        if (!statusResult.success) {
-          setFormError(getApiErrorMessage(statusResult));
-          throw new Error(statusResult.message);
+        if (statusActive) {
+          await activateMutation.mutateAsync(editingCoa.coaId);
+        } else {
+          await deactivateMutation.mutateAsync(editingCoa.coaId);
         }
       }
-
-      showFeedback('success', result.message);
       return;
     }
 
-    const { statusActive, ...createPayload } = data as MasterCoaCreateFormData;
-    const result = await createMutation.mutateAsync(createPayload as CreateMasterCoaRequest);
-    if (!result.success) {
-      setFormError(getApiErrorMessage(result));
-      setFormServerErrors(result.errors);
-      throw new Error(result.message);
-    }
-
-    const newCoaId = result.data?.coaId;
-    if (newCoaId && !statusActive) {
-      const deactivateResult = await deactivateMutation.mutateAsync(newCoaId);
-      if (!deactivateResult.success) {
-        setFormError(getApiErrorMessage(deactivateResult));
-        throw new Error(deactivateResult.message);
-      }
-    }
-
-    showFeedback('success', result.message);
+    const createPayload = data as CreateMasterCoaRequest;
+    await createMutation.mutateAsync(createPayload);
   };
 
-  const handleCopySubmit = async (data: CopyMasterCoaFormData) => {
+  const handleCopySubmit = async (_data: CopyMasterCoaFormData) => {
     if (!copySource) return;
-    setCopyError('');
-    const result = await copyMutation.mutateAsync({ coaId: copySource.coaId, data });
-    if (!result.success) {
-      setCopyError(getApiErrorMessage(result));
-      throw new Error(result.message);
-    }
-    showFeedback('success', result.message);
+    await copyMutation.mutateAsync({ coaId: copySource.coaId, data: _data });
     setCopyOpen(false);
   };
 
   const handleConfirmAction = async () => {
     if (!confirmTarget || !confirmAction) return;
 
-    let result: ApiResponse<unknown>;
     if (confirmAction === 'activate') {
-      result = await activateMutation.mutateAsync(confirmTarget.coaId);
+      await activateMutation.mutateAsync(confirmTarget.coaId);
     } else if (confirmAction === 'deactivate') {
-      result = await deactivateMutation.mutateAsync(confirmTarget.coaId);
+      await deactivateMutation.mutateAsync(confirmTarget.coaId);
     } else {
-      result = await deleteMutation.mutateAsync(confirmTarget.coaId);
-    }
-
-    if (!result.success) {
-      showFeedback('error', getApiErrorMessage(result));
-    } else {
-      showFeedback('success', result.message);
+      await deleteMutation.mutateAsync(confirmTarget.coaId);
     }
 
     setConfirmTarget(null);
@@ -323,6 +259,7 @@ export function MasterCoaScreen() {
         meta: { className: 'min-w-40 text-center' },
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [cabangList, activateMutation.isPending, deactivateMutation.isPending],
   );
 
@@ -345,18 +282,6 @@ export function MasterCoaScreen() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Master COA</h1>
-
-      {feedback && (
-        <div
-          className={`mb-4 rounded-md px-4 py-2 text-sm ${
-            feedback.type === 'success'
-              ? 'bg-green-50 text-green-800 border border-green-200'
-              : 'bg-destructive/10 text-destructive border border-destructive/30'
-          }`}
-        >
-          {feedback.message}
-        </div>
-      )}
 
       <div className="flex flex-wrap gap-2 mb-4 items-center justify-between">
         <div className="flex gap-2 items-center flex-wrap">

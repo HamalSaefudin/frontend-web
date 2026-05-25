@@ -17,6 +17,7 @@ import { mapEkspedisiInventoryDetailToProcessFormValues } from "@/services/ekspe
 import { KsuTab } from "./tabs/KsuTab";
 import { PlaceholderTab } from "./tabs/PlaceholderTab";
 import { EKSPEDISI_INVENTORY_TABS } from "../constants/ekspedisi-inventory-tabs";
+import type { EkspedisiInventoryDetail } from "@/types/types-ekspedisi";
 
 function defaultProcessValues(): EkspedisiInventoryProcessFormValues {
   return {
@@ -73,7 +74,7 @@ export function EkspedisiInventoryModal({
     if (!detailQuery.data) return;
 
     const mapped = mapEkspedisiInventoryDetailToProcessFormValues(
-      detailQuery.data,
+      detailQuery.data.data.data as EkspedisiInventoryDetail,
     );
     reset(mapped);
     setActiveTab("ksu");

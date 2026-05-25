@@ -35,11 +35,15 @@ export const fetchDataAsync = async <TResult>({
 }: FetchDataAsyncParams<TResult>): Promise<TResult> => {
   try {
     return await asyncFn();
-  } catch (error) {
+  } catch (error: any) {
+    // Extract API error message from AxiosError.response.data
+    const apiError = error?.response?.data
     const errorMessage =
-      error instanceof Error ? error.message : "An unexpected error occurred.";
-    console.log(`[${menuName}]`, error);
-    setError({ menuName, errorMessage, title });
-    throw error;
+      apiError?.message ||
+      error?.message ||
+      "An unexpected error occurred."
+    console.log(`[${menuName}]`, error)
+    setError({ menuName, errorMessage, title })
+    throw error
   }
 };

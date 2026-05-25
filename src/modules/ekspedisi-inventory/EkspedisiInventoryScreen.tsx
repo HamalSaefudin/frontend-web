@@ -44,7 +44,7 @@ export function EkspedisiInventoryScreen() {
     if (listQuery.isError) setSuccessMessage(null);
   }, [listQuery.isError]);
 
-  const records = listQuery.data?.data ?? [];
+  const records = listQuery.data?.data.data?.data ?? [];
 
   const columns: ColumnDef<EkspedisiInventoryListItem>[] = useMemo(() => {
     return [
@@ -176,7 +176,7 @@ export function EkspedisiInventoryScreen() {
           serverSide
           page={page}
           rowsPerPage={rowsPerPage}
-          totalRows={listQuery.data?.total ?? 0}
+          totalRows={listQuery.data?.data.data?.total ?? 0}
           onPageChange={setPage}
           onRowsPerPageChange={setRowsPerPage}
           isLoading={listQuery.isLoading}

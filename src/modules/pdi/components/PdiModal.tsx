@@ -86,7 +86,7 @@ export function PdiModal({ open, onOpenChange, unit }: PdiModalProps) {
       items: T[],
       prefix: string,
     ) =>
-      items.map(({ isSaved: _isSaved, id, ...rest }) => ({
+      items.map(({ id, ...rest }) => ({
         ...rest,
         id: id ?? `${prefix}-${Date.now()}-${Math.random()}`,
       }));

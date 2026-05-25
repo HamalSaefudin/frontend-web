@@ -1,29 +1,28 @@
-import { useEffect, useMemo } from 'react';
-import {
-  useForm,
-  Controller,
-  useFieldArray,
-} from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { ColumnDef } from '@tanstack/react-table';
 import { AppModal } from '@/components/AppModal';
 import { LoadingOverlay } from '@/components/LoadingOverlay';
-import { InputField } from '@/components/ui/input-field';
 import { Button } from '@/components/ui/button';
+import { InputField } from '@/components/ui/input-field';
 import { SelectField, type SelectOption } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { DataTable } from '@/components/ui/table';
-import { PlusIcon, TrashIcon, CheckIcon, EditIcon } from 'lucide-react';
+import type { CoaTransaction, MasterCoa } from '@/services/master-coa';
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { ColumnDef } from '@tanstack/react-table';
+import { CheckIcon, EditIcon, PlusIcon, TrashIcon } from 'lucide-react';
+import { useEffect, useMemo } from 'react';
+import {
+  Controller,
+  useFieldArray,
+  useForm,
+} from 'react-hook-form';
+import { COA_CATEGORY_OPTIONS } from '../constants';
+import { useQueryCabang, useQueryMasterCoaDetail } from '../hooks';
 import {
   masterCoaCreateSchema,
   masterCoaUpdateSchema,
   type MasterCoaCreateFormData,
   type MasterCoaUpdateFormData,
 } from '../utils/validationSchemas';
-import { COA_CATEGORY_OPTIONS } from '../constants';
-import type { MasterCoa, CoaTransaction } from '@/services/master-coa';
-import { useQueryCabang } from '../hooks';
-import { useQueryMasterCoaDetail } from '../hooks';
 
 interface MasterCoaFormProps {
   open: boolean;
@@ -196,7 +195,7 @@ export function MasterCoaForm({
   // Fetch full detail when editing (list data doesn't include transactions)
   const coaId = initialData?.coaId;
   const { data: detailResponse, isLoading: detailLoading } = useQueryMasterCoaDetail(coaId ?? '');
-  const detailData = detailResponse?.data;
+  const detailData = detailResponse;
 
   const { data: cabangData = [], isLoading: cabangLoading } = useQueryCabang();
 
@@ -208,7 +207,6 @@ export function MasterCoaForm({
   const {
     register,
     control,
-    handleSubmit,
     formState: { errors, isSubmitting },
     reset,
     watch,
@@ -227,7 +225,7 @@ export function MasterCoaForm({
 
   const { fields, append, remove, replace } = useFieldArray({
     control,
-    name: 'transactions' as 'transactions',
+    name: 'transactions',
   });
 
   const watchedTransactions: MasterCoaCreateFormData['transactions'] = watch('transactions') ?? [];
@@ -272,11 +270,6 @@ export function MasterCoaForm({
       });
     }
   }, [open, initialData, detailData, reset, replace]);
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Don't handle form submit here - use onButtonClick instead
-  };
 
   const onButtonClick = async () => {
     const isValid = await trigger();

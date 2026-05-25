@@ -44,8 +44,8 @@ export function MasterServiceScreen() {
 
   // Sync fetched services with local state
   useEffect(() => {
-    if (fetchedServices) {
-      setServices(fetchedServices);
+    if (fetchedServices?.data.data) {
+      setServices(fetchedServices.data.data);
     }
   }, [fetchedServices]);
 
@@ -87,8 +87,8 @@ export function MasterServiceScreen() {
 
   // Auto-select first branch on load
   useEffect(() => {
-    if (branches && branches.length > 0 && !hasAutoSelected.current) {
-      setSelectedBranchId(branches[0].id);
+    if (branches?.data.data && branches?.data?.data?.length > 0 && !hasAutoSelected.current) {
+      setSelectedBranchId(branches.data.data[0].id);
       hasAutoSelected.current = true;
     }
   }, [branches]);
@@ -96,7 +96,7 @@ export function MasterServiceScreen() {
   // Branch select options
   const branchOptions: SelectOption[] = useMemo(
     () =>
-      branches?.map((b) => ({
+      branches?.data.data?.map((b) => ({
         value: b.id,
         label: `${b.kodeCabang} - ${b.namaCabang}`,
       })) || [],
@@ -182,16 +182,13 @@ export function MasterServiceScreen() {
         ),
       );
     } else {
-      const result = await createMutation.mutateAsync(formData);
-      if (result.data) {
-        setServices((prev) => [...prev, result.data as Service]);
-      }
+      await createMutation.mutateAsync(formData);
     }
   };
 
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
-    await deleteMutation.mutateAsync();
+    await deleteMutation.mutateAsync({ id: deleteTarget.id });
     setServices((prev) => prev.filter((s) => s.id !== deleteTarget.id));
     setDeleteTarget(null);
   };
