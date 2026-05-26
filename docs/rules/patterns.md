@@ -192,21 +192,33 @@ export const useMutationCreate = () => {
 
 ## Service Layer
 
-### API Calls
+### API Services — NEVER Mock
 
-Use `apiClient` directly from `@/services/api-client`. Do NOT create custom helper functions.
+**CRITICAL: Do NOT create mock/dummy data in services.**
 
 ```tsx
-import apiClient from "@/services/api-client";
+import apiClient from '@/services/api-client'
 
-// ✅ CORRECT - Use apiClient directly
-export const getBanks = () => apiClient.get("/api/v1/banks");
-export const createBank = (data) => apiClient.post("/api/v1/banks", data);
-export const updateBank = (id, data) => apiClient.put(`/api/v1/banks/${id}`, data);
-export const deleteBank = (id) => apiClient.delete(`/api/v1/banks/${id}`);
+// ✅ CORRECT - Direct apiClient calls, no mock data
+export const getBanks = () => 
+  apiClient.get<IBaseResponse<Bank[]>>('/api/v1/banks')
 
-// ❌ WRONG - Custom helper functions
-import { get, post, put, patch } from "@/services/api-client";
+export const createBank = (data: CreateBankRequest) =>
+  apiClient.post<IBaseResponse<Bank>>('/api/v1/banks', data)
+
+export const updateBank = (id: string, data: UpdateBankRequest) =>
+  apiClient.put<IBaseResponse<Bank>>(`/api/v1/banks/${id}`, data)
+
+export const deleteBank = (id: string) =>
+  apiClient.delete<IBaseResponse<void>>(`/api/v1/banks/${id}`)
+```
+
+**❌ WRONG - Never do this:**
+```tsx
+// DO NOT write mock data
+const mockBanks = [{ id: '1', name: 'Bank A' }]
+export const getBanks = () => 
+  new Promise(resolve => setTimeout(() => resolve(mockBanks), 500))
 ```
 
 ### Query Parameters
@@ -227,43 +239,33 @@ export const listBanks = async (filters: BankListParams) => {
 };
 ```
 
-**Rules:**
-1. Use `apiClient.get()`, `apiClient.post()`, `apiClient.put()`, `apiClient.patch()`, `apiClient.delete()` directly
-2. Pass query parameters via the `params` option object — Axios serializes automatically
-3. Include `params?: object` in function signature for optional query params
+### Error Handling in Hooks (NOT in Services)
 
-### Data Fetching with Error Handling
-
-Use `fetchDataAsync` wrapper for all API calls in hooks to handle errors centrally.
+Use `fetchDataAsync` wrapper ONLY in hooks, not services. Services return raw AxiosResponse.
 
 ```tsx
 import { fetchDataAsync } from '@/utils'
 import { useErrorStore } from '@/store/useErrorStore'
 
-// ✅ CORRECT - Use fetchDataAsync wrapper
-export const useLeadsQuery = () => {
+// ✅ CORRECT - fetchDataAsync in hooks only
+export const useQueryBanks = () => {
   const setError = useErrorStore((s) => s.setError)
   return useQuery({
-    queryKey: ['leads'],
-    queryFn: () =>
-      fetchDataAsync({
-        asyncFn: fetchLeads,
-        setError,
-        menuName: 'leads',
-      }),
+    queryKey: ['banks'],
+    queryFn: () => fetchDataAsync({
+      asyncFn: getBanks,
+      setError,
+      menuName: 'banks',
+    }),
   })
 }
 
-// ❌ WRONG - Direct API call without error handling
-export const useLeadsQuery = () => {
-  return useQuery({
-    queryKey: ['leads'],
-    queryFn: () => fetchLeads(),
-  })
-}
+// ❌ WRONG - No error handling in services
+// ❌ WRONG - No .success/.message checks in screen handlers
 ```
 
 **Rules:**
-1. Wrap all API calls with `fetchDataAsync` in hooks
-2. Pass `setError` from `useErrorStore` to handle errors globally
-3. Use `menuName` to identify the feature in logs/error messages
+1. Services return raw AxiosResponse — no mock/dummy data, no error handling
+2. Hooks wrap with `fetchDataAsync` for error handling
+3. Mutations don't check `.success`/`.message` — errors handled by `fetchDataAsync`
+4. Use `apiClient.get/post/put/patch/delete()` directly — no custom helpers
