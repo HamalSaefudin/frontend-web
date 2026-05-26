@@ -25,6 +25,20 @@ This project uses **CLAUDE.md** as the single source of truth for all AI agents.
    - Hooks consolidated per feature
    - 1-2 hook files max
 
+## API Writing Rules
+
+1. **NEVER write mock/dummy data** in services
+   - ❌ `const mockUsers = [...]` + `setTimeout(() => resolve(mockData), 500)`
+   - ✅ `apiClient.get('/api/v1/users')` directly
+
+2. **API calls return AxiosResponse** — don't unwrap `.data.data`
+   - Services return raw `apiClient` responses
+   - Hooks unwrap via `fetchDataAsync`
+
+3. **All services use `apiClient`** from `@/services/api-client`
+   - Import: `import apiClient from '@/services/api-client'`
+   - Methods: `apiClient.get()`, `.post()`, `.put()`, `.patch()`, `.delete()`
+
 ## When Unsure
 
 Mirror an existing reference feature:

@@ -24,9 +24,9 @@ export function LoginScreen() {
     },
   });
 
-  const onSubmit = async (data: LoginInput) => {
+  const onSubmit = async (_data: LoginInput) => {
     try {
-      await loginMutation.mutateAsync(data);
+      await loginMutation.mutateAsync(_data);
       navigate("/dashboard");
     } catch (error) {
       console.error("[LoginScreen] Submit error:", error);

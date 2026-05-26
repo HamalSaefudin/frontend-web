@@ -1,6 +1,5 @@
-// Master Lokasi Warehouse API functions
-
 import apiClient from './api-client'
+import type { IBaseResponse } from '@/types'
 
 export interface LokasiWarehouse {
   id: string;
@@ -20,130 +19,30 @@ export interface LokasiFilterParams {
   size?: number;
 }
 
-interface ApiResponse<T = unknown> {
-  success: boolean;
-  code: string;
-  message: string;
-  data?: T;
-  errors: Array<{ field: string; message: string }>;
+export const getLokasiList = async (params?: LokasiFilterParams) => {
+  return await apiClient.get<IBaseResponse<{ items: LokasiWarehouse[]; totalElements: number }>>('/api/v1/master-locator', { params })
 }
 
-interface MutationResponse<T = unknown> {
-  success: boolean;
-  code: string;
-  message: string;
-  data?: T;
-  errors: Array<{ field: string; message: string }>;
+export const getLokasiDetail = async (id: string) => {
+  return await apiClient.get<IBaseResponse<LokasiWarehouse>>(`/api/v1/master-locator/${id}`)
 }
 
-// List Lokasi Warehouse
-export const getLokasiList = async (params?: LokasiFilterParams): Promise<MutationResponse<{ items: LokasiWarehouse[]; totalElements: number }>> => {
-  try {
-    const response = await apiClient.get<ApiResponse<{ items: LokasiWarehouse[]; totalElements: number }>>('/api/v1/master-locator', { params });
-    return response.data;
-  } catch (error: any) {
-    return {
-      success: false,
-      code: error.response?.data?.code || 'ERROR',
-      message: error.response?.data?.message || 'Failed to fetch lokasi list',
-      data: undefined,
-      errors: error.response?.data?.errors || [],
-    };
-  }
-};
+export const createLokasi = async (data: Omit<LokasiWarehouse, 'id' | 'status' | 'createdAt' | 'updatedAt'>) => {
+  return await apiClient.post<IBaseResponse<{ id: string }>>('/api/v1/master-locator', data)
+}
 
-// Get Lokasi Detail
-export const getLokasiDetail = async (id: string): Promise<MutationResponse<LokasiWarehouse>> => {
-  try {
-    const response = await apiClient.get<ApiResponse<LokasiWarehouse>>(`/api/v1/master-locator/${id}`);
-    return response.data;
-  } catch (error: any) {
-    return {
-      success: false,
-      code: error.response?.data?.code || 'LOKASI_NOT_FOUND',
-      message: error.response?.data?.message || 'Lokasi warehouse not found',
-      data: undefined,
-      errors: error.response?.data?.errors || [{ field: 'id', message: 'Lokasi warehouse not found' }],
-    };
-  }
-};
+export const updateLokasi = async (id: string, data: Omit<LokasiWarehouse, 'id' | 'status' | 'createdAt' | 'updatedAt'>) => {
+  return await apiClient.put<IBaseResponse<{ lokasiId: string }>>(`/api/v1/master-locator/${id}`, data)
+}
 
-// Create Lokasi Warehouse
-export const createLokasi = async (data: Omit<LokasiWarehouse, 'id' | 'status' | 'createdAt' | 'updatedAt'>): Promise<MutationResponse<{ id: string }>> => {
-  try {
-    const response = await apiClient.post<ApiResponse<{ id: string }>>('/api/v1/master-locator', data);
-    return response.data;
-  } catch (error: any) {
-    return {
-      success: false,
-      code: error.response?.data?.code || 'ERROR',
-      message: error.response?.data?.message || 'Failed to create lokasi',
-      data: undefined,
-      errors: error.response?.data?.errors || [],
-    };
-  }
-};
+export const deleteLokasi = async (id: string) => {
+  return await apiClient.delete<IBaseResponse<{ lokasiId: string }>>(`/api/v1/master-locator/${id}`)
+}
 
-// Update Lokasi Warehouse
-export const updateLokasi = async (id: string, data: Omit<LokasiWarehouse, 'id' | 'status' | 'createdAt' | 'updatedAt'>): Promise<MutationResponse<{ lokasiId: string }>> => {
-  try {
-    const response = await apiClient.put<ApiResponse<{ lokasiId: string }>>(`/api/v1/master-locator/${id}`, data);
-    return response.data;
-  } catch (error: any) {
-    return {
-      success: false,
-      code: error.response?.data?.code || 'ERROR',
-      message: error.response?.data?.message || 'Failed to update lokasi',
-      data: undefined,
-      errors: error.response?.data?.errors || [],
-    };
-  }
-};
+export const updateLokasiStatus = async (id: string, status: 'ACTIVE' | 'INACTIVE') => {
+  return await apiClient.put<IBaseResponse<{ lokasiId: string; status: string }>>(`/api/v1/master-locator/${id}/status`, { status })
+}
 
-// Delete Lokasi Warehouse
-export const deleteLokasi = async (id: string): Promise<MutationResponse<{ lokasiId: string }>> => {
-  try {
-    const response = await apiClient.delete<ApiResponse<{ lokasiId: string }>>(`/api/v1/master-locator/${id}`);
-    return response.data;
-  } catch (error: any) {
-    return {
-      success: false,
-      code: error.response?.data?.code || 'ERROR',
-      message: error.response?.data?.message || 'Failed to delete lokasi',
-      data: undefined,
-      errors: error.response?.data?.errors || [],
-    };
-  }
-};
-
-// Update Lokasi Status (PUT as per new API contract)
-export const updateLokasiStatus = async (id: string, status: 'ACTIVE' | 'INACTIVE'): Promise<MutationResponse<{ lokasiId: string; status: string }>> => {
-  try {
-    const response = await apiClient.put<ApiResponse<{ lokasiId: string; status: string }>>(`/api/v1/master-locator/${id}/status`, { status });
-    return response.data;
-  } catch (error: any) {
-    return {
-      success: false,
-      code: error.response?.data?.code || 'ERROR',
-      message: error.response?.data?.message || 'Failed to update status',
-      data: undefined,
-      errors: error.response?.data?.errors || [],
-    };
-  }
-};
-
-// Filter Lokasi Warehouse
-export const filterLokasi = async (params: LokasiFilterParams): Promise<MutationResponse<{ items: LokasiWarehouse[]; totalElements: number }>> => {
-  try {
-    const response = await apiClient.get<ApiResponse<{ items: LokasiWarehouse[]; totalElements: number }>>('/api/v1/master-locator/filter', { params });
-    return response.data;
-  } catch (error: any) {
-    return {
-      success: false,
-      code: error.response?.data?.code || 'ERROR',
-      message: error.response?.data?.message || 'Failed to filter lokasi',
-      data: undefined,
-      errors: error.response?.data?.errors || [],
-    };
-  }
-};
+export const filterLokasi = async (params: LokasiFilterParams) => {
+  return await apiClient.get<IBaseResponse<{ items: LokasiWarehouse[]; totalElements: number }>>('/api/v1/master-locator/filter', { params })
+}

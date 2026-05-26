@@ -204,10 +204,12 @@ export function MasterKasScreen() {
 
   const handleExport = async () => {
     try {
-      const blob = await exportMutation.mutateAsync({
+      const response = await exportMutation.mutateAsync({
         filters,
         format: "excel",
       });
+      const blob = response?.data?.data;
+      if (!blob) return;
       // Create download link
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");

@@ -8,41 +8,73 @@ import {
   exportMasterKas,
   type MasterKas,
   type MasterKasFilters,
+  type MasterKasResponse,
 } from "@/services/master-kas";
 import { fetchBranches, type Branch } from "@/services/master-cabang";
+import { fetchDataAsync } from "@/utils";
+import { useErrorStore } from "@/store/useErrorStore";
 
 export type { MasterKas, MasterKasFilters, Branch };
 
 // Query hooks
 export const useQueryMasterKasList = (filters: MasterKasFilters = {}) => {
-  return useQuery({
+  const setError = useErrorStore((s) => s.setError);
+  return useQuery<MasterKasResponse>({
     queryKey: ["master-kas", filters],
-    queryFn: () => getMasterKasList(filters),
+    queryFn: async () => {
+      const response = await fetchDataAsync({
+        asyncFn: () => getMasterKasList(filters),
+        setError,
+        menuName: "master-kas-list",
+      });
+      return response?.data?.data ?? { data: [], total: 0, page: 1, limit: 10 };
+    },
   });
 };
 
 export const useQueryMasterKasById = (id: string) => {
-  return useQuery({
+  const setError = useErrorStore((s) => s.setError);
+  return useQuery<MasterKas | undefined>({
     queryKey: ["master-kas", id],
-    queryFn: () => getMasterKasList({ page: 1, limit: 1 }),
-    select: (response) => response.data.find((k) => k.id === id),
+    queryFn: async () => {
+      const response = await fetchDataAsync({
+        asyncFn: () => getMasterKasList({ page: 1, limit: 1 }),
+        setError,
+        menuName: "master-kas-detail",
+      });
+      const data = response?.data?.data?.data;
+      return data?.find((k) => k.id === id);
+    },
     enabled: !!id,
   });
 };
 
 export const useQueryCabang = () => {
-  return useQuery({
+  const setError = useErrorStore((s) => s.setError);
+  return useQuery<Branch[]>({
     queryKey: ["cabang"],
-    queryFn: () => fetchBranches(),
+    queryFn: async () => {
+      const response = await fetchDataAsync({
+        asyncFn: fetchBranches,
+        setError,
+        menuName: "cabang",
+      });
+      return response?.data?.data ?? [];
+    },
   });
 };
 
 // Mutation hooks
 export const useMutationCreateMasterKas = () => {
+  const setError = useErrorStore((s) => s.setError);
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<MasterKas, "id" | "createdAt" | "updatedAt">) =>
-      createMasterKas(data),
+    mutationFn: (kasData: Omit<MasterKas, "id" | "createdAt" | "updatedAt">) =>
+      fetchDataAsync({
+        asyncFn: () => createMasterKas(kasData),
+        setError,
+        menuName: "create-master-kas",
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["master-kas"] });
     },
@@ -50,6 +82,7 @@ export const useMutationCreateMasterKas = () => {
 };
 
 export const useMutationUpdateMasterKas = () => {
+  const setError = useErrorStore((s) => s.setError);
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -58,7 +91,12 @@ export const useMutationUpdateMasterKas = () => {
     }: {
       id: string;
       data: Partial<Omit<MasterKas, "id" | "createdAt" | "updatedAt">>;
-    }) => updateMasterKas(id, data),
+    }) =>
+      fetchDataAsync({
+        asyncFn: () => updateMasterKas(id, data),
+        setError,
+        menuName: "update-master-kas",
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["master-kas"] });
     },
@@ -66,9 +104,15 @@ export const useMutationUpdateMasterKas = () => {
 };
 
 export const useMutationDeleteMasterKas = () => {
+  const setError = useErrorStore((s) => s.setError);
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteMasterKas(id),
+    mutationFn: (id: string) =>
+      fetchDataAsync({
+        asyncFn: () => deleteMasterKas(id),
+        setError,
+        menuName: "delete-master-kas",
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["master-kas"] });
     },
@@ -76,10 +120,15 @@ export const useMutationDeleteMasterKas = () => {
 };
 
 export const useMutationUpdateMasterKasStatus = () => {
+  const setError = useErrorStore((s) => s.setError);
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: boolean }) =>
-      updateMasterKasStatus(id, status),
+      fetchDataAsync({
+        asyncFn: () => updateMasterKasStatus(id, status),
+        setError,
+        menuName: "update-master-kas-status",
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["master-kas"] });
     },
@@ -87,6 +136,7 @@ export const useMutationUpdateMasterKasStatus = () => {
 };
 
 export const useMutationExportMasterKas = () => {
+  const setError = useErrorStore((s) => s.setError);
   return useMutation({
     mutationFn: ({
       filters,
@@ -94,6 +144,11 @@ export const useMutationExportMasterKas = () => {
     }: {
       filters: MasterKasFilters;
       format: "pdf" | "excel";
-    }) => exportMasterKas(filters, format),
+    }) =>
+      fetchDataAsync({
+        asyncFn: () => exportMasterKas(filters, format),
+        setError,
+        menuName: "export-master-kas",
+      }),
   });
 };

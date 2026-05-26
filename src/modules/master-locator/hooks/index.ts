@@ -10,6 +10,8 @@ import {
   type LokasiFilterParams,
 } from '@/services/master-locator';
 import type { LokasiFilterInput } from '../utils/validationSchemas';
+import { fetchDataAsync } from '@/utils';
+import { useErrorStore } from '@/store/useErrorStore';
 
 export type { LokasiWarehouse, LokasiFilterParams, LokasiFilterInput };
 
@@ -19,6 +21,7 @@ const DEFAULT_SIZE = 5;
 
 // Query hooks
 export const useLokasiList = (params?: LokasiFilterParams) => {
+  const setError = useErrorStore((s) => s.setError);
   // Always use filterLokasi with default pagination (page=1, size=5)
   // Merge provided params with defaults
   const queryParams: LokasiFilterParams = {
@@ -29,25 +32,42 @@ export const useLokasiList = (params?: LokasiFilterParams) => {
   
   return useQuery({
     queryKey: ['lokasi', 'filter', queryParams],
-    queryFn: () => filterLokasi(queryParams),
+    queryFn: () =>
+      fetchDataAsync({
+        asyncFn: () => filterLokasi(queryParams),
+        setError,
+        menuName: 'lokasi-list',
+      }),
     staleTime: 0,  // Always fetch fresh data
     refetchOnWindowFocus: false,
   });
 };
 
 export const useLokasiDetail = (id: string) => {
+  const setError = useErrorStore((s) => s.setError);
   return useQuery({
     queryKey: ['lokasi', id],
-    queryFn: () => getLokasiDetail(id),
+    queryFn: () =>
+      fetchDataAsync({
+        asyncFn: () => getLokasiDetail(id),
+        setError,
+        menuName: 'lokasi-detail',
+      }),
     enabled: !!id,
   });
 };
 
 // Mutation hooks
 export const useMutationCreateLokasi = () => {
+  const setError = useErrorStore((s) => s.setError);
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<LokasiWarehouse, 'id'>) => createLokasi(data),
+    mutationFn: (data: Omit<LokasiWarehouse, 'id'>) =>
+      fetchDataAsync({
+        asyncFn: () => createLokasi(data),
+        setError,
+        menuName: 'create-lokasi',
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['lokasi'] });
     },
@@ -55,10 +75,15 @@ export const useMutationCreateLokasi = () => {
 };
 
 export const useMutationUpdateLokasi = () => {
+  const setError = useErrorStore((s) => s.setError);
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Omit<LokasiWarehouse, 'id'> }) =>
-      updateLokasi(id, data),
+      fetchDataAsync({
+        asyncFn: () => updateLokasi(id, data),
+        setError,
+        menuName: 'update-lokasi',
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['lokasi'] });
     },
@@ -66,9 +91,15 @@ export const useMutationUpdateLokasi = () => {
 };
 
 export const useMutationDeleteLokasi = () => {
+  const setError = useErrorStore((s) => s.setError);
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteLokasi(id),
+    mutationFn: (id: string) =>
+      fetchDataAsync({
+        asyncFn: () => deleteLokasi(id),
+        setError,
+        menuName: 'delete-lokasi',
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['lokasi'] });
     },
@@ -76,10 +107,15 @@ export const useMutationDeleteLokasi = () => {
 };
 
 export const useMutationUpdateLokasiStatus = () => {
+  const setError = useErrorStore((s) => s.setError);
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: 'ACTIVE' | 'INACTIVE' }) =>
-      updateLokasiStatus(id, status),
+      fetchDataAsync({
+        asyncFn: () => updateLokasiStatus(id, status),
+        setError,
+        menuName: 'update-lokasi-status',
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['lokasi'] });
     },

@@ -14,7 +14,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-import type { FjbListItem, FjbStatus } from "@/services/fjb-types";
+import type { FjbListItem, FjbStatus } from "@/types/types-fjb";
 import type { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import { FjbFormModal } from "./components/FjbFormModal";

@@ -73,7 +73,7 @@ export function MasterCoaDetailDialog({
 }: MasterCoaDetailDialogProps) {
   const { data: response, isLoading } = useQueryMasterCoaDetail(coaId ?? '');
   const { data: cabangList = [] } = useQueryCabang();
-  const coa = response?.data;
+  const coa = response;
 
   const transactionColumns: ColumnDef<CoaTransaction>[] = useMemo(
     () => [

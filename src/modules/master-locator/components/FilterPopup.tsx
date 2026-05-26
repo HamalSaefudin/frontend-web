@@ -22,9 +22,12 @@ export function FilterPopup({
   onApply,
   onClear,
 }: FilterPopupProps) {
-  const { data: branches = [] } = useQuery({
+  const { data: branches = [] } = useQuery<Branch[]>({
     queryKey: ['branches', 'filter'],
-    queryFn: fetchBranches,
+    queryFn: async () => {
+      const response = await fetchBranches();
+      return response?.data?.data ?? [];
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 

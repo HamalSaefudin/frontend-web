@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
   PdiFilters,
   PdiData,
+  PdiUnit,
   PdiPhysicalChecklistItem,
   PdiKsuItem,
   PdiHadiahItem,
@@ -9,6 +10,7 @@ import type {
   PdiPartItem,
   PdiPhoto,
 } from "@/types";
+import type { Branch } from "@/services/master-cabang";
 import {
   fetchPdiUnits,
   fetchPdiData,
@@ -22,18 +24,19 @@ import {
   processPdi,
   rejectPdi,
 } from "@/services/pdi";
-import { fetchBranches, type Branch } from "@/services/master-cabang";
+import { fetchBranches } from "@/services/master-cabang";
 
 export type { PdiData, PdiFilters };
-
-// Re-export for convenience
 export type { Branch };
 
 // Query hooks
 export const useQueryCabang = () => {
-  return useQuery({
+  return useQuery<Branch[]>({
     queryKey: ["cabang"],
-    queryFn: () => fetchBranches(),
+    queryFn: async () => {
+      const response = await fetchBranches();
+      return response?.data?.data ?? [];
+    },
   });
 };
 
@@ -42,16 +45,23 @@ export const useQueryPdiUnits = (
   pageSize: number = 10,
   filters?: PdiFilters
 ) => {
-  return useQuery({
+  return useQuery<{ data: PdiUnit[]; total: number }>({
     queryKey: ["pdi-units", page, pageSize, filters],
-    queryFn: () => fetchPdiUnits(page, pageSize, filters),
+    queryFn: async () => {
+      const response = await fetchPdiUnits(page, pageSize, filters);
+      return response?.data?.data ?? { data: [], total: 0 };
+    },
   });
 };
 
 export const useQueryPdiData = (unitId: string) => {
-  return useQuery({
+  return useQuery<PdiData | null>({
     queryKey: ["pdi-data", unitId],
-    queryFn: () => fetchPdiData(unitId),
+    queryFn: async () => {
+      if (!unitId) return null;
+      const response = await fetchPdiData(unitId);
+      return response?.data?.data ?? null;
+    },
     enabled: !!unitId,
   });
 };

@@ -15,6 +15,7 @@ These violations have caused real refactor work. **Verify your code does not do 
 9. **Don't create one hook file per hook** — consolidate into 1-2 files per feature.
 10. **Don't wrap form sections in `border border-border rounded-lg p-4`** — group with headings, dividers, or `space-y-*`. Cards/borders are for genuinely separate entities.
 11. **Don't use button toggles (OK/Not OK) for constrained values** — use `SelectField mode="simple"` with explicit options.
+12. **Don't write mock/dummy data** in services — NEVER create `setTimeout(() => resolve(mockData))` patterns. Always use real `apiClient` calls.
 
 When in doubt, mirror `src/modules/master-user/` or `src/modules/receiving-unit/`.
 
@@ -27,7 +28,7 @@ src/modules/[feature]/
 ├── hooks/use[Feature].ts         # 1-2 files max, not per-hook
 └── schemas/validationSchemas.ts  # Zod + TS types
 
-src/services/[feature].ts         # ALL API calls + interfaces + mock data
+src/services/[feature].ts         # ALL API calls + interfaces
 ```
 
 **Rules:**
@@ -35,7 +36,7 @@ src/services/[feature].ts         # ALL API calls + interfaces + mock data
 1. API calls only in `/src/services/` — never in components
 2. Hooks consolidated per feature (1-2 files), export `useQueryX`, `useMutationCreateX`, etc.
 3. Use existing UI library — no custom Button/Input/Table
-4. Mark mock API calls with `// TODO: Replace with real API endpoint`
+4. **NEVER write mock/dummy data** — always use real `apiClient` calls
 5. **HTML mockups are reference only** — when an FSD ships an HTML mockup, treat it as a reference for layout and behavior. Do **not** copy the raw HTML/CSS into the codebase. Rebuild it using the components from `@/components/ui/*` and the patterns in this document.
 6. **Dates always use Day.js** — for any date/time utility (parsing, formatting, comparing, math, timezones), use `dayjs` from `@/lib/dayjs`. **Never use `new Date()`**, `Date.now()`, `Date.parse()`, or native `Date` methods directly in feature code.
 7. **Don't use cards or borders just to group fields** — group form sections with headings, subtle dividers, or vertical spacing (`space-y-*`, `gap-*`). Reserve `<Card>`, `border`, and shadow boxes for genuinely separate entities (a list of records, a dashboard widget). Wrapping a tab panel, form section, or field cluster in `border border-border rounded-lg p-4` is **not allowed**.

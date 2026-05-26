@@ -124,13 +124,12 @@ export function LeadsScreen() {
   }
 
   const handleSave = () => {
-    // TODO: wire to update API mutation
     console.log('save', form)
     closeEdit()
   }
 
   const filteredLeads = useMemo(() => {
-    return (leads ?? []).filter((lead) => {
+    return (leads?.data.data ?? []).filter((lead) => {
       const date = new Date(lead.createdAt)
       if (filterFrom && date < filterFrom) return false
       if (filterTo) {

@@ -1,40 +1,46 @@
-export interface User {
-  id: string
-  email: string
-  name: string
-  role: 'admin' | 'user'
+// Generic API types
+
+// Base response for all API calls
+export interface IBaseResponse<T = unknown> {
+  success: boolean;
+  message: string;
+  data?: T;
+  error?: {
+    code: string;
+    details?: string;
+  };
 }
 
-export interface AuthResponse {
-  user: User
-  token: string
+export interface IPaginatedDataResponse<T> {
+  items: T[];
+  pagination: {
+    page: number;
+    size: number;
+    totalItems: number;
+    totalPages: number;
+  };
 }
 
-export interface LoginRequest {
-  email: string
-  password: string
+export interface IApiError {
+  status: number;
+  message: string;
+  code?: string;
 }
 
-export interface RegisterRequest {
-  name: string
-  email: string
-  password: string
+// Reusable dropdown option
+export interface SelectOption {
+  value: string;
+  label: string;
 }
 
-export interface TokenData {
-  accessToken: string
-  refreshToken: string
-  expiresIn: number
-  tokenType: string
-}
+// ============================================================
+// Re-export types commonly used across the app
+// ============================================================
 
-export interface AuthApiResponse {
-  success: boolean
-  code: string
-  message: string
-  data: TokenData
-}
+// Auth types - re-export entire module
+export * from './types-auth';
 
+// Dashboard types
 export interface Lead {
   id: string
   name: string
@@ -67,123 +73,8 @@ export interface Settings {
   timezone: string
 }
 
-export interface ApiError {
-  status: number
-  message: string
-  code?: string
-}
+// PDI types - re-export entire module
+export * from './types-pdi';
 
-export interface ApiResponse<T> {
-  data: T
-  success: boolean
-  message?: string
-}
-
-// PDI Types
-export type PdiStatus = 'BELUM_PDI' | 'SUDAH_PDI' | 'DITOLAK'
-
-export interface PdiUnit {
-  id: string
-  noFj: string
-  tanggalFj: string
-  kodeVarian: string
-  namaVarian: string
-  kodeWarna: string
-  namaWarna: string
-  nomorMesin: string
-  nomorRangka: string
-  status: PdiStatus
-  cabangId: string
-  cabangName: string
-  tipeUnit: string
-  noPdi?: string
-  keterangan?: string
-}
-
-export interface PdiPhysicalChecklistItem {
-  id: string
-  namaItem: string
-  status: 'OK' | 'NOT_OK'
-  notes?: string
-}
-
-export interface PdiKsuItem {
-  id: string
-  namaItem: string
-  jumlah: number
-  kondisi: 'BAIK' | 'DAMAGE' | 'RUSAK'
-}
-
-export interface PdiHadiahItem {
-  id: string
-  namaHadiah: string
-  jumlah: number
-  keterangan?: string
-}
-
-export interface PdiBarangLainItem {
-  id: string
-  namaBarang: string
-  jumlah: number
-  keterangan?: string
-}
-
-export interface PdiPartItem {
-  id: string
-  namaPart: string
-  jumlah: number
-  kondisi: 'BAIK' | 'DAMAGE' | 'RUSAK'
-  keterangan?: string
-}
-
-export interface PdiPhoto {
-  id: string
-  url: string
-  kategori: 'EXTERIOR' | 'INTERIOR' | 'DAMAGE' | 'LAINNYA'
-  createdAt: string
-}
-
-export interface PdiData {
-  unitId: string
-  unit: PdiUnit
-  checklist: PdiPhysicalChecklistItem[]
-  ksu: PdiKsuItem[]
-  hadiah: PdiHadiahItem[]
-  barangLain: PdiBarangLainItem[]
-  parts: PdiPartItem[]
-  photos: PdiPhoto[]
-}
-
-export interface PdiFilters {
-  cabangId?: string
-  status?: 'BELUM_PDI' | 'SUDAH_PDI'
-  filterBy?: 'NOMOR_MESIN' | 'KODE_VARIAN'
-  search?: string
-}
-
-// Master Kas Types
-export interface MasterKas {
-  id: string
-  kodeKas: string
-  namaCabang: string
-  namaKas: string
-  status: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-export interface MasterKasFilters {
-  page?: number
-  limit?: number
-  namaKas?: string
-  kodeKas?: string
-  cabangId?: string
-  status?: boolean
-}
-
-export interface MasterKasResponse {
-  data: MasterKas[]
-  total: number
-  page: number
-  limit: number
-}
+// MasterKas types - re-export entire module
+export * from './types-master-kas';

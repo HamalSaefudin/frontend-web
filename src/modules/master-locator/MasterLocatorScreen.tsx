@@ -66,9 +66,9 @@ export function MasterLocatorScreen() {
 
   // Sync fetched data with local state
   useEffect(() => {
-    if (fetchedData?.data?.items) {
-      setLokasiList(fetchedData.data.items);
-      setTotalElements(fetchedData.data.totalElements || 0);
+    if (fetchedData?.data.data?.items) {
+      setLokasiList(fetchedData.data.data.items);
+      setTotalElements(fetchedData.data.data.totalElements || 0);
     }
   }, [fetchedData]);
 
@@ -158,7 +158,7 @@ export function MasterLocatorScreen() {
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
     const result = await deleteMutation.mutateAsync(deleteTarget.id);
-    if (result.success) {
+    if (result.data.success) {
       setLokasiList((prev) => prev.filter((l) => l.id !== deleteTarget.id));
       resetToDefault(); // Reset filter and pagination after delete
     }

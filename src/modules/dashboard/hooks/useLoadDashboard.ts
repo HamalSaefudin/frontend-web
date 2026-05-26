@@ -18,19 +18,39 @@ export function useLoadDashboard() {
     queries: [
       {
         queryKey: ['users'],
-        queryFn: () => fetchDataAsync({ asyncFn: fetchUsers, setError, menuName: 'users' }),
+        queryFn: () =>
+          fetchDataAsync({
+            asyncFn: fetchUsers,
+            setError,
+            menuName: 'users',
+          }),
       },
       {
         queryKey: ['stats'],
-        queryFn: () => fetchDataAsync({ asyncFn: fetchStats, setError, menuName: 'stats' }),
+        queryFn: () =>
+          fetchDataAsync({
+            asyncFn: fetchStats,
+            setError,
+            menuName: 'stats',
+          }),
       },
       {
         queryKey: ['reports'],
-        queryFn: () => fetchDataAsync({ asyncFn: fetchReports, setError, menuName: 'reports' }),
+        queryFn: () =>
+          fetchDataAsync({
+            asyncFn: fetchReports,
+            setError,
+            menuName: 'reports',
+          }),
       },
       {
         queryKey: ['settings'],
-        queryFn: () => fetchDataAsync({ asyncFn: fetchSettings, setError, menuName: 'settings' }),
+        queryFn: () =>
+          fetchDataAsync({
+            asyncFn: fetchSettings,
+            setError,
+            menuName: 'settings',
+          }),
       },
     ],
   })
@@ -41,15 +61,15 @@ export function useLoadDashboard() {
   const isError = queries.some((q) => q.isError)
 
   const data: DashboardData = {
-    users: usersQuery.data ?? [],
-    stats: statsQuery.data ?? {
+    users: usersQuery.data?.data?.data ?? [],
+    stats: statsQuery.data?.data?.data ?? {
       totalLeads: 0,
       convertedLeads: 0,
       pendingLeads: 0,
       conversionRate: 0,
     },
-    reports: reportsQuery.data ?? [],
-    settings: settingsQuery.data ?? {
+    reports: reportsQuery.data?.data?.data ?? [],
+    settings: settingsQuery.data?.data?.data ?? {
       theme: 'light',
       notifications: true,
       language: 'en',

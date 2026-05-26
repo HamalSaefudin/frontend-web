@@ -14,9 +14,12 @@ export function useLoginMutation() {
         setError,
         menuName: "login",
       }),
-    onSuccess: (data) => {
-      localStorage.setItem("token", data.data.accessToken);
-      localStorage.setItem("refreshToken", data.data.refreshToken);
+    onSuccess: (response) => {
+      const data = response?.data?.data;
+      if (data) {
+        localStorage.setItem("token", data.accessToken);
+        localStorage.setItem("refreshToken", data.refreshToken);
+      }
     },
     onError: (error: Error) => {
       console.error("[login] Error:", error.message);
