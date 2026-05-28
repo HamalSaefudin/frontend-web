@@ -7,6 +7,7 @@ This folder contains implementation guide for HTTP-only cookie authentication.
 - [HOW_IT_WORKS.md](HOW_IT_WORKS.md) — How cookies work vs localStorage
 - [IMPLEMENTATION.md](IMPLEMENTATION.md) — Step-by-step code changes
 - [API_SPEC.md](API_SPEC.md) — Backend requirements
+- [CSRF_PROTECTION.md](CSRF_PROTECTION.md) — CSRF mitigation strategy
 
 ## Quick Summary
 
@@ -16,6 +17,7 @@ This folder contains implementation guide for HTTP-only cookie authentication.
 | You save token | Server sets via `Set-Cookie` |
 | You send header | Browser sends automatically |
 | XSS vulnerable | XSS protected |
+| CSRF not a risk | CSRF risk — needs protection |
 
 ## Two Auth Check Options
 
