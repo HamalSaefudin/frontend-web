@@ -133,16 +133,18 @@ describe('Branch Form Validation', () => {
 
   describe('edge cases', () => {
     it('should handle missing properties gracefully', () => {
-      const data = {} as any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data: any = {}
       const errors = validateBranchForm(data)
       expect(Object.keys(errors).length).toBeGreaterThan(0)
     })
 
     it('should handle null values', () => {
-      const data = {
-        kodeCabang: null as any,
-        namaCabang: null as any,
-        namaLead: null as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data: Record<string, any> = {
+        kodeCabang: null,
+        namaCabang: null,
+        namaLead: null,
       }
 
       const errors = validateBranchForm(data)

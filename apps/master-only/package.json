@@ -1,0 +1,28 @@
+{
+  "name": "@frontend/app-master",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@frontend/ui": "*",
+    "@frontend/shared": "*",
+    "@frontend/auth": "*",
+    "@frontend/dashboard": "*",
+    "@frontend/master-data": "*",
+    "react": "^19",
+    "react-dom": "^19",
+    "react-router-dom": "^7",
+    "lucide-react": "^1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6",
+    "@tailwindcss/vite": "^4",
+    "tailwindcss": "^4",
+    "vite": "^8",
+    "typescript": "^6"
+  }
+}

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { filterBranches } from '../../../src/modules/master-cabang/utils/filterBranches'
-import type { Branch } from '../../../src/services/master-cabang'
+import { filterBranches } from '../../../packages/master-data/src/screens/master-cabang/utils/filterBranches'
+import type { Branch } from '../../../packages/master-data/src/services/master-cabang'
 
 const mockBranches: Branch[] = [
   { id: '1', kodeCabang: 'CB001', namaCabang: 'Cabang Jakarta', namaLead: 'Budi Santoso' },

@@ -1,0 +1,16 @@
+{
+  "name": "@frontend/delivery",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  },
+  "dependencies": {
+    "@frontend/ui": "*",
+    "@frontend/shared": "*",
+    "react": "^19",
+    "@tanstack/react-query": "^5",
+    "zustand": "^5"
+  }
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import type { Service } from '../../../src/services/master-service'
+import type { Service } from '../../../packages/master-data/src/services/master-service'
 
 // Filter logic extracted for testing
 const filterServices = (

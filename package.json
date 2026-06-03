@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": ["packages/*", "apps/*"],
   "engines": {
     "node": ">=22.14.0"
   },
@@ -13,7 +14,13 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "dev:full": "npm run dev -w apps/full",
+    "dev:order": "npm run dev -w apps/order-only",
+    "dev:master": "npm run dev -w apps/master-only",
+    "build:full": "npm run build -w apps/full",
+    "build:order": "npm run build -w apps/order-only",
+    "build:master": "npm run build -w apps/master-only"
   },
   "dependencies": {
     "@hookform/resolvers": "5.2.2",
