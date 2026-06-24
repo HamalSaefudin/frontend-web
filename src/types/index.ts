@@ -41,16 +41,6 @@ export interface SelectOption {
 export * from './types-auth';
 
 // Dashboard types
-export interface Lead {
-  id: string
-  name: string
-  email: string
-  phone: string
-  company: string
-  status: 'new' | 'contacted' | 'qualified' | 'converted'
-  createdAt: string
-}
-
 export interface Stats {
   totalLeads: number
   convertedLeads: number
@@ -72,9 +62,6 @@ export interface Settings {
   language: string
   timezone: string
 }
-
-// PDI types - re-export entire module
-export * from './types-pdi';
 
 // MasterKas types - re-export entire module
 export * from './types-master-kas';

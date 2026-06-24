@@ -15,14 +15,18 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/components/ui/use-sidebar";
-import { useLogoutMutation } from "@/modules/auth/hooks";
 import { NavLink, Outlet } from "react-router-dom";
 import "./AppLayout.css";
 import { NAV_GROUPS } from "./Constants";
 
 function AppSidebar() {
   const { open } = useSidebar();
-  const logoutMutation = useLogoutMutation();
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+  };
 
   return (
     <Sidebar>
@@ -68,9 +72,8 @@ function AppSidebar() {
         <Button
           variant="secondary"
           size={open ? "default" : "icon"}
-          loading={logoutMutation.isPending}
-          onClick={() => logoutMutation.mutate()}
           className="w-full"
+          onClick={() => logout()}
         >
           {open ? "Logout" : "⎋"}
         </Button>

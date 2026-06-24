@@ -1,12 +1,12 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "@/components/layouts";
 import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/ui/input-field";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "./hooks";
-import { loginSchema, type LoginInput } from "./schemas/authSchemas";
 import "./login.css";
+import { loginSchema, type LoginInput } from "./schemas/authSchemas";
 
 export function LoginScreen() {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ export function LoginScreen() {
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
@@ -40,12 +40,12 @@ export function LoginScreen() {
           <h1 className="login-title">Login</h1>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <InputField
-              id="email"
-              type="email"
-              label="Email"
-              placeholder="Enter your email"
-              error={errors.email?.message}
-              {...register("email")}
+              id="username"
+              type="username"
+              label="Username"
+              placeholder="Enter your username"
+              error={errors.username?.message}
+              {...register("username")}
             />
             <InputField
               id="password"
@@ -63,12 +63,6 @@ export function LoginScreen() {
               Sign In
             </Button>
           </form>
-          <p className="login-register-link">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-link">
-              Create Account
-            </Link>
-          </p>
         </div>
       </Card>
     </div>

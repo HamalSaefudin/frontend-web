@@ -7,8 +7,8 @@ export const registerApi = async (data: RegisterRequest) => {
 }
 
 export const loginApi = async (credentials: LoginRequest) => {
-  return await apiClient.post<IBaseResponse<{ accessToken: string; refreshToken: string }>>('/api/v1/auth/login', {
-    email: credentials.email,
+  return await apiClient.post<IBaseResponse<{ accessToken: string; refreshToken: string }>>(`${import.meta.env.VITE_API_NOS_URL}/nagamas-authentication/api/v1.0/UserAuthentication/login`, {
+    username: credentials.username,
     password: credentials.password,
   })
 }

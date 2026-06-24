@@ -1,2 +1,0 @@
-export { EkspedisiInventoryModal } from "./EkspedisiInventoryModal";
-
