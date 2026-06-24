@@ -90,7 +90,71 @@ export function MyForm({
 }
 ```
 
-Activity types in `src/constants/activity-type.ts` (`ACTIVITY_TYPE.CREATE|READ|UPDATE|DELETE`).
+Activity types in `packages/shared/src/constants/activity-type.ts` (`ACTIVITY_TYPE.CREATE|READ|UPDATE|DELETE`).
+
+## Multi-Tab Forms
+
+When a form has **2+ tabs**, split each tab into its own file under `components/tabs/<Name>Tab.tsx`.
+
+### Orchestrator (`<Feature>FormModal.tsx`)
+
+Owns only: modal wrapping, `useForm`/`FormProvider`, tab routing, and footer buttons.
+
+```tsx
+export function FjbFormModal({ mode, open, onOpenChange, initialData }: FormProps) {
+  const [tab, setTab] = useState("data-unit");
+  const methods = useForm<FormData>({ resolver: zodResolver(schema), defaultValues });
+
+  return (
+    <AppModal isOpen={open} onClose={() => onOpenChange(false)} title={getTitle(mode)}>
+      <FormProvider {...methods}>
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList>
+            <TabsTrigger value="data-unit">Data Unit</TabsTrigger>
+            <TabsTrigger value="data-transaksi">Data Transaksi</TabsTrigger>
+          </TabsList>
+          <DataUnitTab />
+          <DataTransaksiTab />
+        </Tabs>
+        <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
+          {/* footer with Cancel/Submit buttons */}
+        </form>
+      </FormProvider>
+    </AppModal>
+  );
+}
+```
+
+### Tab file (`tabs/DataUnitTab.tsx`)
+
+Owns its `<TabsContent>` wrapper, reads shared state via `useFormContext`, keeps tab-local state inside itself.
+
+```tsx
+import { useFormContext, Controller } from "react-hook-form";
+
+export function DataUnitTab() {
+  const { control, formState: { errors } } = useFormContext<FormData>();
+
+  return (
+    <TabsContent value="data-unit" className="space-y-4">
+      <Controller
+        name="field"
+        control={control}
+        render={({ field }) => (
+          <InputField {...field} label="..." error={errors.field?.message} />
+        )}
+      />
+    </TabsContent>
+  );
+}
+```
+
+Tab files with array fields use `useFieldArray` via `useFormContext`:
+
+```tsx
+const { control } = useFormContext<FormData>();
+const { fields, append, remove } = useFieldArray({ control, name: "items" });
+```
 
 ## Read-Only Detail Displays
 
@@ -111,8 +175,20 @@ For displaying unit/entity details in modals and forms, use **disabled input com
 <p className="font-medium">{unit.cabangName}</p>
 ```
 
-**Layout:** Use grid for multi-column detail sections:
+**Layout:** Use grid for multi-column form sections:
+
 ```tsx
+// 2 or 3 columns for form layouts
+<div className="grid grid-cols-2 gap-4">
+  <Controller name="field1" control={control} render={({ field }) => (
+    <InputField {...field} label="Field 1" />
+  )} />
+  <Controller name="field2" control={control} render={({ field }) => (
+    <InputField {...field} label="Field 2" />
+  )} />
+</div>
+
+// Detail sections — muted background, 3 columns
 <div className="grid grid-cols-3 gap-4 p-4 bg-muted rounded-lg mb-4">
   <InputField label="Cabang" value={unit.cabangName} disabled={true} />
   <InputField label="Warna" value={unit.namaWarna} disabled={true} />
@@ -172,19 +248,29 @@ const {
 />;
 ```
 
-## Data Fetching (TanStack Query)
+## Data Fetching & Error Handling (TanStack Query)
+
+Hooks wrap API calls with `fetchDataAsync` for centralized error handling (via `useErrorStore` + `GlobalErrorDialog`). Services never handle errors.
 
 ```tsx
-export const useQueryData = (filters?) =>
-  useQuery({
+import { fetchDataAsync } from "@frontend/shared";
+import { useErrorStore } from "@frontend/shared/store/useErrorStore.ts";
+
+export const useQueryData = (filters?: Params) => {
+  const setError = useErrorStore((s) => s.setError);
+  return useQuery({
     queryKey: ["data", filters],
-    queryFn: () => fetchData(filters),
+    queryFn: () =>
+      fetchDataAsync({ asyncFn: () => getData(filters), setError, menuName: "data" }),
   });
+};
 
 export const useMutationCreate = () => {
   const qc = useQueryClient();
+  const setError = useErrorStore((s) => s.setError);
   return useMutation({
-    mutationFn: createData,
+    mutationFn: (data) =>
+      fetchDataAsync({ asyncFn: () => createData(data), setError, menuName: "data" }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["data"] }),
   });
 };
@@ -197,7 +283,7 @@ export const useMutationCreate = () => {
 **CRITICAL: Do NOT create mock/dummy data in services.**
 
 ```tsx
-import apiClient from '@/services/api-client'
+import { apiClient } from '@frontend/shared'
 
 // ✅ CORRECT - Direct apiClient calls, no mock data
 export const getBanks = () => 
@@ -239,33 +325,9 @@ export const listBanks = async (filters: BankListParams) => {
 };
 ```
 
-### Error Handling in Hooks (NOT in Services)
+### Error Handling Rules
 
-Use `fetchDataAsync` wrapper ONLY in hooks, not services. Services return raw AxiosResponse.
-
-```tsx
-import { fetchDataAsync } from '@/utils'
-import { useErrorStore } from '@/store/useErrorStore'
-
-// ✅ CORRECT - fetchDataAsync in hooks only
-export const useQueryBanks = () => {
-  const setError = useErrorStore((s) => s.setError)
-  return useQuery({
-    queryKey: ['banks'],
-    queryFn: () => fetchDataAsync({
-      asyncFn: getBanks,
-      setError,
-      menuName: 'banks',
-    }),
-  })
-}
-
-// ❌ WRONG - No error handling in services
-// ❌ WRONG - No .success/.message checks in screen handlers
-```
-
-**Rules:**
 1. Services return raw AxiosResponse — no mock/dummy data, no error handling
-2. Hooks wrap with `fetchDataAsync` for error handling
+2. Hooks wrap with `fetchDataAsync` for error handling (see [Data Fetching section](#data-fetching--error-handling-tanstack-query))
 3. Mutations don't check `.success`/`.message` — errors handled by `fetchDataAsync`
 4. Use `apiClient.get/post/put/patch/delete()` directly — no custom helpers

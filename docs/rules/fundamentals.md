@@ -4,43 +4,48 @@
 
 These violations have caused real refactor work. **Verify your code does not do any of these before submitting:**
 
-1. **Don't write manual `<table>` markup** — use `DataTable` from `@/components/ui/table`. DataTable already handles empty states, sorting, pagination.
-2. **Don't write custom modal markup** (`fixed inset-0 bg-black/50`, custom backdrops, etc.) — use `AppModal` from `@/components/AppModal`.
+1. **Don't write manual `<table>` markup** — use `DataTable` from `@frontend/ui`. DataTable already handles empty states, sorting, pagination.
+2. **Don't write custom modal markup** (`fixed inset-0 bg-black/50`, custom backdrops, etc.) — use `AppModal` from `@frontend/ui`.
 3. **Don't use `useState` for form data inside tab components** — multi-tab forms must share ONE RHF instance via `useFormContext`. The orchestrator owns `useForm`/`FormProvider`; tabs read state via `useFormContext` and write via `useFieldArray`/`Controller`.
 4. **Don't create separate add/edit modals for table rows** — use the `isSaved` inline editing pattern. Click "Tambah" appends a row with `isSaved: false`; click ✓ flips to `isSaved: true`.
 5. **Don't use `<label>` + `<p>` for read-only details** — use disabled `InputField`/`SelectField`/`DatePicker` for consistent form semantics and selectable text.
 6. **Don't use `<InputField type="date">`** — always use `DatePicker`.
-7. **Don't use `new Date()`/`Date.parse()`/native `Date` methods directly** — use `dayjs` from `@/lib/dayjs`.
+7. **Don't use `new Date()`/`Date.parse()`/native `Date` methods directly** — use `dayjs` from `dayjs`.
 8. **Don't put API calls in components or hooks** — all API calls live in `/src/services/[feature].ts`.
 9. **Don't create one hook file per hook** — consolidate into 1-2 files per feature.
 10. **Don't wrap form sections in `border border-border rounded-lg p-4`** — group with headings, dividers, or `space-y-*`. Cards/borders are for genuinely separate entities.
 11. **Don't use button toggles (OK/Not OK) for constrained values** — use `SelectField mode="simple"` with explicit options.
 12. **Don't write mock/dummy data** in services — NEVER create `setTimeout(() => resolve(mockData))` patterns. Always use real `apiClient` calls.
 
-When in doubt, mirror `src/modules/master-user/` or `src/modules/receiving-unit/`.
+When in doubt, mirror `packages/master-data/` or `packages/order/`.
 
 ## Feature Structure
 
 ```
-src/modules/[feature]/
-├── [Feature]Screen.tsx           # entry point
-├── components/                   # feature-specific UI + index.ts
-├── hooks/use[Feature].ts         # 1-2 files max, not per-hook
-└── schemas/validationSchemas.ts  # Zod + TS types
+packages/[feature]/
+└── src/
+    ├── [Feature]Screen.tsx              # entry point
+    ├── components/                      # feature-specific UI + index.ts
+    ├── hooks/use[Feature].ts            # 1-2 files max, not per-hook
+    ├── schemas/validationSchemas.ts     # Zod + TS types (or utils/)
+    ├── services/[feature].ts            # ALL API calls + interfaces
+    └── types/                           # shared feature types
 
-src/services/[feature].ts         # ALL API calls + interfaces
+apps/[app]/src/
+├── App.tsx                              # route registration
+└── navigation.ts                        # NAV_GROUPS menu entry
 ```
 
 **Rules:**
 
-1. API calls only in `/src/services/` — never in components
+1. API calls only in `services/[feature].ts` — never in components
 2. Hooks consolidated per feature (1-2 files), export `useQueryX`, `useMutationCreateX`, etc.
 3. Use existing UI library — no custom Button/Input/Table
 4. **NEVER write mock/dummy data** — always use real `apiClient` calls
-5. **HTML mockups are reference only** — when an FSD ships an HTML mockup, treat it as a reference for layout and behavior. Do **not** copy the raw HTML/CSS into the codebase. Rebuild it using the components from `@/components/ui/*` and the patterns in this document.
-6. **Dates always use Day.js** — for any date/time utility (parsing, formatting, comparing, math, timezones), use `dayjs` from `@/lib/dayjs`. **Never use `new Date()`**, `Date.now()`, `Date.parse()`, or native `Date` methods directly in feature code.
+5. **HTML mockups are reference only** — when an FSD ships an HTML mockup, treat it as a reference for layout and behavior. Do **not** copy the raw HTML/CSS into the codebase. Rebuild it using the components from `@frontend/ui` and the patterns in this document.
+6. **Dates always use Day.js** — for any date/time utility (parsing, formatting, comparing, math, timezones), use `dayjs` from `dayjs`. **Never use `new Date()`**, `Date.now()`, `Date.parse()`, or native `Date` methods directly in feature code.
 7. **Don't use cards or borders just to group fields** — group form sections with headings, subtle dividers, or vertical spacing (`space-y-*`, `gap-*`). Reserve `<Card>`, `border`, and shadow boxes for genuinely separate entities (a list of records, a dashboard widget). Wrapping a tab panel, form section, or field cluster in `border border-border rounded-lg p-4` is **not allowed**.
-8. **Multi-tab forms split tabs into files** — when a form has **2+ tabs**, each tab panel goes in its own file under `modules/<feature>/components/tabs/<TabName>Tab.tsx`. The orchestrator (`<Feature>FormModal.tsx`) only handles modal wrapping, RHF setup, and tab routing. Tab files own their `<TabsContent>` wrapper, read shared form state via `useFormContext`, and keep tab-local state (sub-tabs, derived lists, item handlers) inside themselves.
+8. **Multi-tab forms split tabs into files** — when a form has **2+ tabs**, each tab panel goes in its own file under `packages/<feature>/src/components/tabs/<TabName>Tab.tsx` (or `packages/<feature>/src/screens/<feature>/components/tabs/`). The orchestrator (`<Feature>FormModal.tsx`) only handles modal wrapping, RHF setup, and tab routing. Tab files own their `<TabsContent>` wrapper, read shared form state via `useFormContext`, and keep tab-local state (sub-tabs, derived lists, item handlers) inside themselves.
 
 ## Code Style
 
@@ -52,21 +57,22 @@ src/services/[feature].ts         # ALL API calls + interfaces
 ## Common Imports
 
 ```tsx
-import { Button } from "@/components/ui/button";
-import { InputField } from "@/components/ui/input-field";
-import { SelectField, type SelectOption } from "@/components/ui/select";
-import { DatePicker } from "@/components/ui/date-picker";
-import { DataTable } from "@/components/ui/table";
-import { AppModal } from "@/components/AppModal";
-import { LoadingOverlay } from "@/components/LoadingOverlay";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
+// UI components — all from @frontend/ui
+import { Button, InputField } from "@frontend/ui";
+import { SelectField, type SelectOption } from "@frontend/ui";
+import { DatePicker } from "@frontend/ui";
+import { DataTable } from "@frontend/ui";
+import { AppModal, LoadingOverlay } from "@frontend/ui";
+import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@frontend/ui";
+import { Card, Container, Page, Row, Section } from "@frontend/ui";
+
+// Shared utilities & stores — from @frontend/shared
+import { fetchDataAsync } from "@frontend/shared";
+import { useErrorStore } from "@frontend/shared/store/useErrorStore.ts";
+import { apiClient } from "@frontend/shared";
+import type { IBaseResponse } from "@frontend/shared";
+
+// External libraries
 import { PlusIcon, EditIcon, TrashIcon, FilterIcon } from "lucide-react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -78,8 +84,8 @@ import { z } from "zod";
 
 After creating a feature route:
 
-1. Register route in `src/App.tsx`
-2. Add menu entry to `src/layouts/Constants.ts` (`NAV_GROUPS`)
+1. Register route in `apps/<app>/src/App.tsx`
+2. Add menu entry to `apps/<app>/src/navigation.ts` (export `NAV_GROUPS` array)
 
 ## Before Submitting
 
@@ -89,7 +95,7 @@ After creating a feature route:
 
 ## Reference Features
 
-- `src/modules/master-user/` — forms, filtering, CRUD
-- `src/modules/receiving-unit/` — complex forms with nested line items
+- `packages/master-data/` — CRUD screens, filter popups, simple forms
+- `packages/order/` — complex multi-tab forms with nested line items (`isSaved` pattern)
 
 When unsure, mirror existing feature patterns.

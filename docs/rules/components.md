@@ -2,14 +2,14 @@
 
 ## Modal Components
 
-- **AppModal** (`@/components/AppModal`) — forms, filters, detail views, any user input/substantial content
-- **AlertDialog** (`@/components/ui/alert-dialog`) — ONLY for confirmations (delete), brief notifications, yes/no dialogs
+- **AppModal** (`@frontend/ui`) — forms, filters, detail views, any user input/substantial content
+- **AlertDialog** (`@frontend/ui`) — ONLY for confirmations (delete), brief notifications, yes/no dialogs
 
 Never use AlertDialog for forms. Never use AppModal for simple yes/no.
 
 ## Loading States
 
-Use **LoadingOverlay** (`@/components/LoadingOverlay`) for all loading states instead of custom inline spinners.
+Use **LoadingOverlay** (`@frontend/ui`) for all loading states instead of custom inline spinners.
 
 ```tsx
 // ✅ CORRECT - Use LoadingOverlay
@@ -35,12 +35,12 @@ if (isLoading) {
 3. For modal loading, the LoadingOverlay replaces the entire modal content during fetch
 4. For form submissions, use button disabled state + LoadingOverlay if the operation takes long
 
-## SelectField (`@/components/ui/select`)
+## SelectField (`@frontend/ui`)
 
 Portal-based dropdown (escapes overflow containers). Modes: default (searchable single), `mode="multi"`, `mode="simple"` (Radix, non-searchable, value is `SelectOption` object).
 Override positioning: `dropdownPosition="top" | "bottom" | "auto"` (default auto).
 
-## DatePicker (`@/components/ui/date-picker`)
+## DatePicker (`@frontend/ui`)
 
 **Never use `<InputField type="date">`.** Expects `Date` object. With RHF, convert:
 
@@ -49,7 +49,7 @@ value={field.value ? new Date(field.value) : undefined}
 onChange={(date) => field.onChange(date ? date.toISOString().split('T')[0] : '')}
 ```
 
-## DataTable (`@/components/ui/table`)
+## DataTable (`@frontend/ui`)
 
 **Never write manual `<table>` markup.** Built on TanStack Table.
 
@@ -69,3 +69,24 @@ const columns: ColumnDef<Row>[] = [
   { accessorKey: "namaVarian", header: "Nama Varian", meta: { className: "min-w-48" } },
   { id: "actions", header: "Aksi", cell: ..., meta: { className: "min-w-32 text-center" } },
 ];
+
+**Server-side pagination:**
+
+```tsx
+const [page, setPage] = useState(1);
+const [rowsPerPage, setRowsPerPage] = useState(10);
+const { data, isLoading } = useQueryData({ page, rowsPerPage });
+
+if (isLoading) return <LoadingOverlay message="Memuat data..." />;
+
+<DataTable
+  columns={columns}
+  data={data?.data ?? []}
+  serverSide
+  page={page}
+  rowsPerPage={rowsPerPage}
+  totalRows={data?.total ?? 0}
+  onPageChange={setPage}
+  onRowsPerPageChange={setRowsPerPage}
+/>;
+```
